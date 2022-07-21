@@ -1,4 +1,5 @@
 const mysql = require('mysql2');
+const ErrorResponse = require('../utils/errorResponse');
 
 const dbConfig = {
     host:process.env.DB_HOST,
@@ -13,8 +14,7 @@ const mysqlConnect = (config) => {
         connection.connect( (err) => {
             if(err) {
                 reject(err);
-                console.log(err + 'connection au mysql échoué');
-				console.log(err.message);
+                console.log( err + 'connection au mysql échoué');
             }else {
                 resolve(connection); 
 				console.log('connection au mysql réussie');
