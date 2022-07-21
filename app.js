@@ -1,7 +1,8 @@
 const express = require('express');
 const app = express();
 const userRoutes = require('./routes/user');
-const errorHandler = require('./middlewares/errorHandler')
+const postRoutes = require('./routes/post')
+const errorHandler = require('./middlewares/errorHandler');
 
 // body parser
 app.use(express.json());
@@ -11,6 +12,9 @@ app.use(express.static(__dirname + '/public'));
 
 // user routes
 app.use('/api/auth',userRoutes);
+
+// post routes
+app.use('/api/posts',postRoutes)
 
 app.use(errorHandler);
 
