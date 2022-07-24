@@ -4,6 +4,7 @@ const getMysqlDate = require('../utils/getMysqlDate');
 const fs = require('fs');
 const path = require('path');
 
+
 exports.addPost = (req, res, next) => {
     console.log('in addPost controller');
     if(req.body.post && !req.file){
@@ -19,8 +20,8 @@ exports.addPost = (req, res, next) => {
                 return next(new ErrorResponse ('delete file failed', 400))
             }
             console.log('delete file ok');
+            return next( new ErrorResponse('bad request',400))
         })
-        return next( new ErrorResponse('bad request',400))
     }
 
     let body, posts_query, insert_values;
@@ -49,6 +50,72 @@ exports.addPost = (req, res, next) => {
                 return next(error)
             }
             res.status(201).json({message : 'add post route'})
+        })
+    })
+}
+
+const deleteFile = (req,next) => {
+    const filePath = path.join(__dirname,`../public/images/${req.file.filename}`);
+    console.log('filePath',filePath)
+    fs.unlink(filePath, err => {
+        if(err){
+            return next(new ErrorResponse ('delete file failed', 500))
+        }
+    })
+}
+
+exports.modifyPost = (req, res, next) => {
+    if(req.body.post && !req.file) {
+        return next ( new ErrorResponse('bad request,must provide a file', 400))
+    }
+
+    if(!req.body.post && req.file) {
+        deleteFile (req,next);
+        return next ( new ErrorResponse('bad request', 400))
+    }
+
+    const posts_query = 'SELECT * FROM posts WHERE ?';
+    const posts_updateQuery = 'UPDATE posts SET ? WHERE ?'
+    const values = { post_id : req.params.id };
+
+    let update_obj = {
+        ...req.body,
+        update_time : getMysqlDate()
+    }
+
+    if(req.file){
+        update_obj = {
+            ...JSON.parse(req.body.post),
+            img_url : `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
+            update_time : getMysqlDate()
+        }
+    }
+
+    mysqlConnect.then( connection => {
+        connection.query(posts_query ,values ,(error, results, fields) => {
+            if(error) {
+                return next(error)
+            }
+            console.log('results',results);
+            if(!req.auth.isAdmin && results[0].user_id !== + req.params.userId ){
+                if(!req.file){
+                    return next ( new ErrorResponse('1you are trying to modify a unauthoriezd post', 401))
+                }
+                deleteFile (req,next);
+                return next ( new ErrorResponse('2you are trying to modify a unauthoriezd post', 401))
+            }
+
+            if(req.file && results[0].img_url !== null) {
+                req.file.filename = results[0].img_url.split('/images/')[1];
+                deleteFile(req,next);
+            }
+
+            connection.query(posts_updateQuery,[update_obj,values], (error, results, fields) => {
+                if(error) {
+                    return next(error)
+                }
+                res.status(201).json({message : 'modify post sucessfully'})
+            })
         })
     })
 }

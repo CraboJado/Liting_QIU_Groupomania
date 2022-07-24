@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const {addPost} = require('../controllers/post');
+const {addPost, modifyPost} = require('../controllers/post');
 const multer = require('../middlewares/multer_config');
 const auth = require('../middlewares/auth');
 
@@ -14,9 +14,7 @@ router.get('/:id',(req,res,next)=>{
 
 router.post('/:userId', auth, multer, addPost)
 
-router.put('/:id/:userId',(req,res,next)=>{
-    res.status(201).json({message : 'modify post route'})
-})
+router.put('/:id/:userId',auth, multer, modifyPost)
 
 router.delete('/:id/:userId',(req,res,next)=>{
     res.status(201).json({message : 'delete post route'})
