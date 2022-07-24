@@ -54,8 +54,8 @@ exports.addPost = (req, res, next) => {
     })
 }
 
-const deleteFile = (req,next) => {
-    const filePath = path.join(__dirname,`../public/images/${req.file.filename}`);
+const deleteFile = (filename,next) => {
+    const filePath = path.join(__dirname,`../public/images/${filename}`);
     console.log('filePath',filePath)
     fs.unlink(filePath, err => {
         if(err){
@@ -70,7 +70,7 @@ exports.modifyPost = (req, res, next) => {
     }
 
     if(!req.body.post && req.file) {
-        deleteFile (req,next);
+        deleteFile (req.file.filename,next);
         return next ( new ErrorResponse('bad request', 400))
     }
 
@@ -97,17 +97,18 @@ exports.modifyPost = (req, res, next) => {
                 return next(error)
             }
             console.log('results',results);
+            // if(!req.auth.isAdmin && results[0].user_id !== req.auth.userId )
             if(!req.auth.isAdmin && results[0].user_id !== + req.params.userId ){
                 if(!req.file){
                     return next ( new ErrorResponse('1you are trying to modify a unauthoriezd post', 401))
                 }
-                deleteFile (req,next);
+                deleteFile (req.file.filename,next);
                 return next ( new ErrorResponse('2you are trying to modify a unauthoriezd post', 401))
             }
 
             if(req.file && results[0].img_url !== null) {
-                req.file.filename = results[0].img_url.split('/images/')[1];
-                deleteFile(req,next);
+                const filename = results[0].img_url.split('/images/')[1];
+                deleteFile(filename,next);
             }
 
             connection.query(posts_updateQuery,[update_obj,values], (error, results, fields) => {
@@ -115,6 +116,40 @@ exports.modifyPost = (req, res, next) => {
                     return next(error)
                 }
                 res.status(201).json({message : 'modify post sucessfully'})
+            })
+        })
+    })
+}
+
+exports.deletePost = (req, res, next) => {
+    mysqlConnect.then( connection => {
+        const posts_query = 'SELECT * FROM posts WHERE ?';
+        const values = {post_id : req.params.id};
+
+        connection.query(posts_query, values, (error, results, fields) => {
+            if(error) {
+                return next(error)
+            }
+
+            if(!req.auth.isAdmin && req.auth.userId !== results[0].user_id){
+                return next( new ErrorResponse('unauthorized request',401))
+            }
+
+            const result = results[0];
+            const query = 'UPDATE posts SET ? WHERE ?'
+            const query_value = { delete_time : getMysqlDate() };
+
+            connection.query(query, [query_value,values], (error, results, fields) => {
+                if(error){
+                    return next(error)
+                }
+                // soft delete, delete img in disk ?
+                if(result.img_url !== null){
+                    const filename = result.img_url.split('/images/')[1];
+                    deleteFile(filename,next)
+                }
+
+                res.status(201).json({message : 'delete post sucessfully'})
             })
         })
     })
