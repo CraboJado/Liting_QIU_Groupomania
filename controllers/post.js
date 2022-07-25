@@ -4,65 +4,53 @@ const getMysqlDate = require('../utils/getMysqlDate');
 const fs = require('fs');
 const path = require('path');
 
-
-exports.addPost = (req, res, next) => {
-    console.log('in addPost controller');
-    if(req.body.post && !req.file){
-        return next( new ErrorResponse('bad request',400))
-    }
-
-    if(!req.body.post && req.file){
-        // const filePath = path.join(__dirname,`../public/images/${req.file.filename}`);
-        const filePath = `./public/images/${req.file.filename}`;
-        console.log(filePath);
-        fs.unlink(filePath, err => {
-            if(err) {
-                return next(new ErrorResponse ('delete file failed', 400))
-            }
-            console.log('delete file ok');
-            return next( new ErrorResponse('bad request',400))
-        })
-    }
-
-    let body, posts_query, insert_values;
-
-    const mysqlDate = getMysqlDate();
-
-    const user_id = req.params.userId;
-
-    if(req.body.post) {
-        body = JSON.parse(req.body.post);
-        const { post_title, post_content } = body; 
-        const fileUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
-        posts_query = 'INSERT INTO posts (user_id, post_title, post_content, img_url, `like`, dislike, create_time) VALUES (?, ?, ?, ?, ?, ?,?)';
-        insert_values = [ user_id, post_title, post_content,fileUrl, '[]', '[]', mysqlDate];
-
-    }else {
-        body = req.body;
-        const { post_title, post_content } = body;
-        posts_query = 'INSERT INTO posts (user_id, post_title, post_content, `like`, dislike, create_time) VALUES (?, ?, ?, ?, ?, ?)';
-        insert_values = [ user_id, post_title, post_content, '[]', '[]', mysqlDate];
-    }
-    
-    mysqlConnect.then( connection => {
-       connection.query(posts_query, insert_values, (error, results, fields) =>{
-            if(error){
-                return next(error)
-            }
-            res.status(201).json({message : 'add post route'})
-        })
-    })
-}
-
 const deleteFile = (filename,next) => {
     const filePath = path.join(__dirname,`../public/images/${filename}`);
     console.log('filePath',filePath)
     fs.unlink(filePath, err => {
         if(err){
-            return next(new ErrorResponse ('delete file failed', 500))
+            return next(new ErrorResponse ('requête échoué', 500))
         }
     })
 }
+
+exports.addPost = (req, res, next) => {
+    console.log('in addPost controller');
+    if(req.body.post && !req.file){
+        return next( new ErrorResponse('mauvaise requête',400))
+    }
+
+    if(!req.body.post && req.file){
+        deleteFile(req.file.filename,next);
+        console.log('delete file ok');
+        return next( new ErrorResponse('mauvaise requête',400))
+    }
+
+    let body = req.body;
+    let { post_title, post_content } = body;
+    let posts_query = 'INSERT INTO posts (user_id, post_title, post_content, `like`, dislike, create_time) VALUES (?, ?, ?, ?, ?, ?)';
+    let insert_values = [ req.params.userId, post_title, post_content, '[]', '[]', getMysqlDate()];
+
+    if(req.file) {
+        body = JSON.parse(req.body.post);
+        post_title = body.post_title;
+        post_content = body.post_content;
+        const fileUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
+        posts_query = 'INSERT INTO posts (user_id, post_title, post_content, img_url, `like`, dislike, create_time) VALUES (?, ?, ?, ?, ?, ?,?)';
+        insert_values = [ req.params.userId, post_title, post_content,fileUrl, '[]', '[]', getMysqlDate()];
+    }
+
+    mysqlConnect.then( connection => {
+       connection.query(posts_query, insert_values, (error, results, fields) =>{
+            if(error){
+                return next(error)
+            }
+            res.status(201).json({message : 'publication ajouté'})
+        })
+    })
+}
+
+
 
 exports.modifyPost = (req, res, next) => {
     if(req.body.post && !req.file) {
@@ -74,14 +62,19 @@ exports.modifyPost = (req, res, next) => {
         return next ( new ErrorResponse('bad request', 400))
     }
 
-    const posts_query = 'SELECT * FROM posts WHERE ?';
-    const posts_updateQuery = 'UPDATE posts SET ? WHERE ?'
-    const values = { post_id : req.params.id };
-
+    /* 
+    si img display none : means user want to delete the photo in his publication, otherwise, means user modify only the text content
+    frontend : si img display none ? img_url === null : img_url === "http://localhost:3000/images/hellboy_sauce_hellfire_jpg_1658700756357.jpg"
+        req.body = {
+                "post_title": "post title1 MODI 121",
+        "post_content": "121 a long textssssssssssss"
+        "img_url" : "http://localhost:3000/images/hellboy_sauce_hellfire_jpg_1658700756357.jpg" or null
+        } 
+    */
     let update_obj = {
         ...req.body,
         update_time : getMysqlDate()
-    }
+    };
 
     if(req.file){
         update_obj = {
@@ -92,6 +85,10 @@ exports.modifyPost = (req, res, next) => {
     }
 
     mysqlConnect.then( connection => {
+        const posts_query = 'SELECT * FROM posts WHERE ?';
+        const posts_updateQuery = 'UPDATE posts SET ? WHERE ?';
+        const values = { post_id : req.params.id };
+
         connection.query(posts_query ,values ,(error, results, fields) => {
             if(error) {
                 return next(error)
@@ -106,15 +103,23 @@ exports.modifyPost = (req, res, next) => {
                 return next ( new ErrorResponse('2you are trying to modify a unauthoriezd post', 401))
             }
 
-            if(req.file && results[0].img_url !== null) {
-                const filename = results[0].img_url.split('/images/')[1];
-                deleteFile(filename,next);
-            }
-
+            const result = results[0];
             connection.query(posts_updateQuery,[update_obj,values], (error, results, fields) => {
                 if(error) {
                     return next(error)
                 }
+
+                if(req.file && result.img_url !== null) {
+                    const filename = result.img_url.split('/images/')[1];
+                    deleteFile(filename,next);
+                }
+    
+                // if user just want to delete the photo, need to delete the photo in disk
+                if(req.body.img_url === null && result.img_url !== null) {
+                    const filename = result.img_url.split('/images/')[1];
+                    deleteFile(filename,next);
+                }
+
                 res.status(201).json({message : 'modify post sucessfully'})
             })
         })
