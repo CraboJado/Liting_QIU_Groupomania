@@ -54,17 +54,17 @@ exports.addPost = (req, res, next) => {
 
 exports.modifyPost = (req, res, next) => {
     if(req.body.post && !req.file) {
-        return next ( new ErrorResponse('bad request,must provide a file', 400))
+        return next ( new ErrorResponse('mauvaise requête', 400))
     }
 
     if(!req.body.post && req.file) {
         deleteFile (req.file.filename,next);
-        return next ( new ErrorResponse('bad request', 400))
+        return next ( new ErrorResponse('mauvaise requête', 400))
     }
 
     /* 
     si img display none : means user want to delete the photo in his publication, otherwise, means user modify only the text content
-    frontend : si img display none ? img_url === null : img_url === "http://localhost:3000/images/hellboy_sauce_hellfire_jpg_1658700756357.jpg"
+    frontend : img display none ? img_url === null : img_url === "http://localhost:3000/images/hellboy_sauce_hellfire_jpg_1658700756357.jpg"
         req.body = {
                 "post_title": "post title1 MODI 121",
         "post_content": "121 a long textssssssssssss"
@@ -84,11 +84,11 @@ exports.modifyPost = (req, res, next) => {
         }
     }
 
-    mysqlConnect.then( connection => {
-        const posts_query = 'SELECT * FROM posts WHERE ?';
-        const posts_updateQuery = 'UPDATE posts SET ? WHERE ?';
-        const values = { post_id : req.params.id };
+    const posts_query = 'SELECT * FROM posts WHERE ?';
+    const posts_updateQuery = 'UPDATE posts SET ? WHERE ?';
+    const values = { post_id : req.params.id };
 
+    mysqlConnect.then( connection => {
         connection.query(posts_query ,values ,(error, results, fields) => {
             if(error) {
                 return next(error)
@@ -97,10 +97,10 @@ exports.modifyPost = (req, res, next) => {
             // if(!req.auth.isAdmin && results[0].user_id !== req.auth.userId )
             if(!req.auth.isAdmin && results[0].user_id !== + req.params.userId ){
                 if(!req.file){
-                    return next ( new ErrorResponse('1you are trying to modify a unauthoriezd post', 401))
+                    return next ( new ErrorResponse('requête non autorisée', 401))
                 }
                 deleteFile (req.file.filename,next);
-                return next ( new ErrorResponse('2you are trying to modify a unauthoriezd post', 401))
+                return next ( new ErrorResponse('requête non autorisée', 401))
             }
 
             const result = results[0];
@@ -109,6 +109,7 @@ exports.modifyPost = (req, res, next) => {
                     return next(error)
                 }
 
+                // delete old file in the disk
                 if(req.file && result.img_url !== null) {
                     const filename = result.img_url.split('/images/')[1];
                     deleteFile(filename,next);
@@ -120,7 +121,7 @@ exports.modifyPost = (req, res, next) => {
                     deleteFile(filename,next);
                 }
 
-                res.status(201).json({message : 'modify post sucessfully'})
+                res.status(201).json({message : 'publication modifié'})
             })
         })
     })
