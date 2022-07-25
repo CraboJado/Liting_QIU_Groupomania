@@ -50,8 +50,6 @@ exports.addPost = (req, res, next) => {
     })
 }
 
-
-
 exports.modifyPost = (req, res, next) => {
     if(req.body.post && !req.file) {
         return next ( new ErrorResponse('mauvaise requête', 400))
@@ -138,7 +136,7 @@ exports.deletePost = (req, res, next) => {
             }
 
             if(!req.auth.isAdmin && req.auth.userId !== results[0].user_id){
-                return next( new ErrorResponse('unauthorized request',401))
+                return next( new ErrorResponse('requête non autorisée',401))
             }
 
             const result = results[0];
@@ -155,9 +153,23 @@ exports.deletePost = (req, res, next) => {
                     deleteFile(filename,next)
                 }
 
-                res.status(201).json({message : 'delete post sucessfully'})
+                res.status(201).json({message : 'publication supprimé'})
             })
         })
     })
 }
+
+exports.getAllPosts = (req, res, next) => {
+    const posts_query = 'SELECT * FROM posts WHERE delete_time IS ?'
+    mysqlConnect.then( connection => {
+        connection.query(posts_query,[null],(error, results,fields) => {
+            if(error){
+                return next(error)
+            }
+            res.status(201).json(results);
+        })
+    })
+}
+
+
 
