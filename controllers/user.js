@@ -52,17 +52,15 @@ exports.login = (req,res,next) => {
             bcrypt.compare(password,results[0].password)
             .then( valid => {
                 if(!valid) {
-                    return next( new ErrorResponse('requête non autorisée', 401) )
+                    return next( new ErrorResponse('requête non autorisée, mot de pass incorrect', 401) )
                 }
-                // if admin , send token with admin true ( plusieur admin ? ajoute isAdmin dans table user)
-                if(results[0].email === process.env.ADMIN){
-                    const token = jwt.sign({ data: results[0].user_id, isAdmin:true }, process.env.TOKEN_KEY, { expiresIn: process.env.TOKEN_EXPIRE });
-                    res.status(200).json({ userId:results[0].user_id, token })
-                }else{
-                // if normal user, send token with userId with admin false
-                    const token = jwt.sign({ data: results[0].user_id, isAdmin:false }, process.env.TOKEN_KEY, { expiresIn: process.env.TOKEN_EXPIRE });
-                    res.status(200).json({ userId:results[0].user_id, token })
-                }
+                // if admin send token with isAdmin : true
+                const token = results[0].isAdmin ? 
+                jwt.sign({ data: results[0].user_id, isAdmin:true }, process.env.TOKEN_KEY, { expiresIn: process.env.TOKEN_EXPIRE })
+                :
+                jwt.sign({ data: results[0].user_id, isAdmin:false }, process.env.TOKEN_KEY, { expiresIn: process.env.TOKEN_EXPIRE });
+
+                res.status(200).json({ userId:results[0].user_id, token })
             })
             .catch( error => {
                 console.log('bcrypt promise catch block error', error);
