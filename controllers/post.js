@@ -10,7 +10,7 @@ const deleteFile = (filename,next) => {
     console.log('filePath',filePath)
     fs.unlink(filePath, err => {
         if(err){
-            return next(new ErrorResponse ('requête échoué', 500))
+            return next(new ErrorResponse ('requête échoué AA', 500))
         }
     })
 }
@@ -175,8 +175,15 @@ exports.getAllPosts = (req, res, next) => {
 
 exports.getPost = (req, res, next) => {
     const posts_query = 'SELECT * FROM posts WHERE delete_time IS ? AND post_id = ?';
+    const values = [ null, req.params.id]
     mysqlConnect.then( connection => {
-        connection.query()
+        connection.query(posts_query,values,(error, results, fields) => {
+            if(error) {
+                return next(error)
+            }
+            console.log(results);
+            res.status(201).json(results);
+        })
     })
 }
 
