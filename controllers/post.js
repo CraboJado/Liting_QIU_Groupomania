@@ -1,6 +1,7 @@
 const ErrorResponse = require('../utils/errorResponse');
 const mysqlConnect = require('../config/db');
 const getMysqlDate = require('../utils/getMysqlDate');
+const uid = require('../utils/getUid');
 const fs = require('fs');
 const path = require('path');
 
@@ -22,27 +23,28 @@ exports.addPost = (req, res, next) => {
 
     if(!req.body.post && req.file){
         deleteFile(req.file.filename,next);
-        console.log('delete file ok');
         return next( new ErrorResponse('mauvaise requête',400))
     }
-
+    //  when user publish only text
     let body = req.body;
     let { post_title, post_content } = body;
-    let posts_query = 'INSERT INTO posts (user_id, post_title, post_content, `like`, dislike, create_time) VALUES (?, ?, ?, ?, ?, ?)';
-    let insert_values = [ req.params.userId, post_title, post_content, '[]', '[]', getMysqlDate()];
+    let posts_query = 'INSERT INTO posts (post_id, user_id, post_title, post_content, `like`, dislike, create_time) VALUES (?, ?, ?, ?, ?, ?, ?)';
+    let insert_values = [ uid(), req.params.userId, post_title, post_content, '[]', '[]', getMysqlDate() ];
 
+    // when user publish text and photo
     if(req.file) {
         body = JSON.parse(req.body.post);
         post_title = body.post_title;
         post_content = body.post_content;
-        const fileUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
-        posts_query = 'INSERT INTO posts (user_id, post_title, post_content, img_url, `like`, dislike, create_time) VALUES (?, ?, ?, ?, ?, ?,?)';
-        insert_values = [ req.params.userId, post_title, post_content,fileUrl, '[]', '[]', getMysqlDate()];
+        const img_url = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
+        posts_query = 'INSERT INTO posts ( post_id, user_id, post_title, post_content, img_url, `like`, dislike, create_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+        insert_values = [ uid(), req.params.userId, post_title, post_content, img_url, '[]', '[]', getMysqlDate() ];
     }
 
     mysqlConnect.then( connection => {
        connection.query(posts_query, insert_values, (error, results, fields) =>{
             if(error){
+                if(req.file) deleteFile(req.file.filename,next);
                 return next(error)
             }
             res.status(201).json({message : 'publication ajouté'})
@@ -160,7 +162,7 @@ exports.deletePost = (req, res, next) => {
 }
 
 exports.getAllPosts = (req, res, next) => {
-    const posts_query = 'SELECT * FROM posts WHERE delete_time IS ?'
+    const posts_query = 'SELECT * FROM posts WHERE delete_time IS ?';
     mysqlConnect.then( connection => {
         connection.query(posts_query,[null],(error, results,fields) => {
             if(error){
@@ -168,6 +170,13 @@ exports.getAllPosts = (req, res, next) => {
             }
             res.status(201).json(results);
         })
+    })
+}
+
+exports.getPost = (req, res, next) => {
+    const posts_query = 'SELECT * FROM posts WHERE delete_time IS ? AND post_id = ?';
+    mysqlConnect.then( connection => {
+        connection.query()
     })
 }
 
