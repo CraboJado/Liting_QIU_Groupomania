@@ -71,6 +71,7 @@ exports.modifyPost = (req, res, next) => {
         "img_url" : "http://localhost:3000/images/hellboy_sauce_hellfire_jpg_1658700756357.jpg" or null
         } 
     */
+
     let update_obj = {
         ...req.body,
         update_time : getMysqlDate()
@@ -83,7 +84,7 @@ exports.modifyPost = (req, res, next) => {
             update_time : getMysqlDate()
         }
     }
-
+    console.log(update_obj);
     const posts_query = 'SELECT * FROM posts WHERE ?';
     const posts_updateQuery = 'UPDATE posts SET ? WHERE ?';
     const values = { post_id : req.params.id };
@@ -91,21 +92,20 @@ exports.modifyPost = (req, res, next) => {
     mysqlConnect.then( connection => {
         connection.query(posts_query ,values ,(error, results, fields) => {
             if(error) {
+                if(req.file) deleteFile(req.file.filename,next);
                 return next(error)
             }
             console.log('results',results);
-            // if(!req.auth.isAdmin && results[0].user_id !== req.auth.userId )
-            if(!req.auth.isAdmin && results[0].user_id !== + req.params.userId ){
-                if(!req.file){
-                    return next ( new ErrorResponse('requête non autorisée', 401))
-                }
-                deleteFile (req.file.filename,next);
-                return next ( new ErrorResponse('requête non autorisée', 401))
+        
+            if(!req.auth.isAdmin && results[0].user_id !== req.auth.userId ){
+                if(req.file) deleteFile (req.file.filename,next);
+                return next( new ErrorResponse('requête non autorisée', 401) )
             }
 
             const result = results[0];
             connection.query(posts_updateQuery,[update_obj,values], (error, results, fields) => {
                 if(error) {
+                    if(req.file) deleteFile(req.file.filename,next);
                     return next(error)
                 }
 
@@ -115,7 +115,7 @@ exports.modifyPost = (req, res, next) => {
                     deleteFile(filename,next);
                 }
     
-                // if user just want to delete the photo, need to delete the photo in disk
+                // if !req.file, need to delete the file in the disk for cases when user want to delete the photo
                 if(req.body.img_url === null && result.img_url !== null) {
                     const filename = result.img_url.split('/images/')[1];
                     deleteFile(filename,next);
