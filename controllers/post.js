@@ -187,5 +187,82 @@ exports.getPost = (req, res, next) => {
     })
 }
 
+const getUpdateValues = (req,post) => {
+    const {like, dislike} = post;
+    const foundDislike = dislike.find(element => element === req.auth.userId);
+    const foundLike = like.find(element => element === req.auth.userId);
+    const values = [req.params.id]
+    let update_values
+
+    if(req.body.like === -1) {
+        dislike.push(req.auth.userId);
+        update_values = [{ dislike : JSON.stringify(dislike) },values];
+    }
+
+    if(req.body.like === 1) {
+        like.push(req.auth.userId);
+        update_values = [{ like : JSON.stringify(like) },values];
+    }
+
+    if(req.body.like === 0) {
+        if(foundLike) {
+            const newLike = like.filter( element => element !== req.auth.userId );
+            update_values = [{ like : JSON.stringify(newLike) },values];
+        }
+
+        if(foundDislike) {
+            const newDislike = dislike.filter( element => element !== req.auth.userId );
+            update_values = [{ dislike : JSON.stringify(newDislike) },values];
+        }
+    }
+
+    return update_values
+}
+
+exports.likePost = (req, res, next) => {
+    console.log('in likePost controller', req.body.like)
+    const posts_query = 'SELECT * FROM posts WHERE post_id = ?'
+    const values = [req.params.id]
+
+    mysqlConnect.then( connection => {
+        connection.query(posts_query,values,(error, results, fields) => {
+            if(error){
+                return next(error)
+            }
+            const { like, dislike } = results[0];
+            const foundDislike = dislike.find(element => element === req.auth.userId);
+            const foundLike = like.find(element => element === req.auth.userId);
+
+            // user can't like or dislike twice the same post or like a disliked-post or dislike a liked-post
+            if((foundLike || foundDislike) && req.body.like != 0 ) {
+                return next( new ErrorResponse('mauvaise requête',400) )
+            }
+            // user can't cancle if he doesn't like nor dislike a post 
+            if((!foundLike && !foundDislike) && req.body.like === 0) {
+                return next( new ErrorResponse('mauvaise requête',400) )
+            }
+
+            const posts_update = 'UPDATE posts SET ? WHERE post_id = ?';
+            const update_values = getUpdateValues(req,results[0]);
+            connection.query(posts_update,update_values,(error,results,fields) => {
+                if(error){
+                    return next(error)
+                }
+                if(req.body.like === 0){
+                    res.status(201).json({message : 'annulation réussie'})
+                }
+                if(req.body.like === 1){
+                    res.status(201).json({message : 'like réussie'})
+                }
+                if(req.body.like === -1){
+                    res.status(201).json({message : 'dislike réussie'})
+                } 
+            })
+
+        })
+    })
+    
+}
+
 
 
