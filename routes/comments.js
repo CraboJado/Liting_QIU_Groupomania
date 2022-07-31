@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('../middlewares/multer_config');
-const {addComment} = require('../controllers/comments')
+const auth = require('../middlewares/auth')
+const { addComment, modifyComment} = require('../controllers/comments')
 
 router.get('/:userId/:postId',(req,res,next) => {
     res.status(200).json({ message: 'get all comments'})
@@ -9,9 +10,7 @@ router.get('/:userId/:postId',(req,res,next) => {
 
 router.post('/:userId/:postId',multer,addComment)
 
-router.put('/:id/:userId',(req,res,next) => {
-    res.status(200).json({ message: 'modify comment_id : aaa'})
-})
+router.put('/:id/:userId',auth,multer,modifyComment)
 
 router.delete('/:id/:userId',(req,res,next) => {
     res.status(200).json({ message: 'delete comment_id : bbb'})

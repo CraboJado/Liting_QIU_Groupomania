@@ -55,5 +55,55 @@ exports.addComment = (req, res, next) => {
 }
 
 exports.modifyComment = (req, res, next) => {
-    
+    const comments_query = 'SELECT * FROM comments WHERE comment_id = ? '
+    mysqlConnect.then( connection => {
+        connection.query(comments_query, [req.params.id], (error, results, fields) => {
+            if(error){
+                if(req.file) deleteFile(req.file.filename, next);
+                return next(error);
+            }
+
+            if(!results.length) {
+                if(req.file) deleteFile(req.file.filename, next);
+                return next( new ErrorResponse('commentaire n\'existe pas',404) )
+            }
+
+            const comment = results[0];
+
+            if(!req.auth.isAdmin && (comment.user_id !== req.auth.userId)) {
+                if(req.file) deleteFile(req.file.filename, next);
+                return next( new ErrorResponse('requête non autorisée',401) );
+            }
+            
+
+            let update_obj = {
+                comment_content: req.body.comment_content,
+                update_time : getMysqlDate()
+            }
+
+            if(req.file){
+                update_obj = {
+                    comment_content: JSON.parse(req.body.comment).comment_content,
+                    img_url:`${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
+                    update_time : getMysqlDate()
+                }
+            }
+
+            const update_query = 'UPDATE comments SET ? WHERE comment_id = ?';
+            const update_values = [update_obj,req.params.id];
+            connection.query(update_query,update_values,(error,results,fields) => {
+                if(error){
+                    if(req.file) deleteFile(req.file.filename, next);
+                    return next(error)
+                }
+
+                if(req.body.img_url === null || req.file){
+                    const filename = comment.img_url.split('/images/')[1];
+                    deleteFile(filename, next);
+                }
+
+                res.status(201).json({ message: 'commentaire modifiée'})
+            })
+        })
+    })
 }
