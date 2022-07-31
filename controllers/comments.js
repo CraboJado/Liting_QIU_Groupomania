@@ -55,6 +55,15 @@ exports.addComment = (req, res, next) => {
 }
 
 exports.modifyComment = (req, res, next) => {
+    if(req.body.comment && !req.file) {
+        return next ( new ErrorResponse('mauvaise requête', 400))
+    }
+
+    if(!req.body.comment && req.file) {
+        deleteFile (req.file.filename,next);
+        return next ( new ErrorResponse('mauvaise requête', 400))
+    }
+    
     const comments_query = 'SELECT * FROM comments WHERE comment_id = ? '
     mysqlConnect.then( connection => {
         connection.query(comments_query, [req.params.id], (error, results, fields) => {
