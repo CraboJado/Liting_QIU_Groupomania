@@ -143,19 +143,20 @@ exports.deletePost = (req, res, next) => {
                 return next(error)
             }
 
+            if(!results.length) return next( new ErrorResponse('publication n\'existe pas',404))
+            
             if(!req.auth.isAdmin && req.auth.userId !== results[0].user_id){
                 return next( new ErrorResponse('requête non autorisée',401))
             }
 
             const post = results[0];
-            const query = 'UPDATE posts SET ? WHERE ?'
+            const query = 'UPDATE posts SET ? WHERE post_id = ?'
             const query_value = { delete_time : getMysqlDate() };
-
-            connection.query(query, [query_value,values], (error, results, fields) => {
+            connection.query(query, [query_value,req.params.id], (error, results, fields) => {
                 if(error){
                     return next(error)
                 }
-                // soft delete, delete img in disk ?
+                // soft delete, only delete img in disk 
                 if(post.img_url !== null){
                     const filename = post.img_url.split('/images/')[1];
                     deleteFile(filename,next)
