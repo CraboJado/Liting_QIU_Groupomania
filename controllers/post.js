@@ -52,16 +52,6 @@ exports.addPost = (req, res, next) => {
     })
 }
 
-exports.modifyPost = (req, res, next) => {
-    if(req.body.post && !req.file) {
-        return next ( new ErrorResponse('mauvaise requête', 400))
-    }
-
-    if(!req.body.post && req.file) {
-        deleteFile (req.file.filename,next);
-        return next ( new ErrorResponse('mauvaise requête', 400))
-    }
-
     /* 
     si img display none : means user want to delete the photo in his publication, otherwise, means user modify only the text content
     frontend : img display none ? img_url === null : img_url === "http://localhost:3000/images/hellboy_sauce_hellfire_jpg_1658700756357.jpg"
@@ -72,55 +62,73 @@ exports.modifyPost = (req, res, next) => {
         } 
     */
 
-    let update_obj = {
-        ...req.body,
-        update_time : getMysqlDate()
-    };
 
-    if(req.file){
-        update_obj = {
-            ...JSON.parse(req.body.post),
-            img_url : `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
-            update_time : getMysqlDate()
-        }
+exports.modifyPost = (req, res, next) => {
+    console.log('in modifypost req.params', req.params)
+    if(req.body.post && !req.file) {
+        return next ( new ErrorResponse('mauvaise requête', 400))
     }
-    console.log(update_obj);
-    const posts_query = 'SELECT * FROM posts WHERE ?';
-    const posts_updateQuery = 'UPDATE posts SET ? WHERE ?';
-    const values = { post_id : req.params.id };
 
+    if(!req.body.post && req.file) {
+        deleteFile (req.file.filename,next);
+        return next ( new ErrorResponse('mauvaise requête', 400))
+    }
+
+    const posts_query = 'SELECT * FROM posts WHERE post_id = ?';
     mysqlConnect.then( connection => {
-        connection.query(posts_query ,values ,(error, results, fields) => {
+        connection.query(posts_query ,[req.params.id] ,(error, results, fields) => {
             if(error) {
                 if(req.file) deleteFile(req.file.filename,next);
                 return next(error)
             }
-            console.log('results',results);
+            
+            if(!results.length){
+                if(req.file) deleteFile(req.file.filename,next);
+                return next( new ErrorResponse('publication n\'existe pas',404))
+            }
+
+            const post = results[0];
         
-            if(!req.auth.isAdmin && results[0].user_id !== req.auth.userId ){
+            if(!req.auth.isAdmin && post.user_id !== req.auth.userId ){
                 if(req.file) deleteFile (req.file.filename,next);
                 return next( new ErrorResponse('requête non autorisée', 401) )
             }
 
-            const result = results[0];
-            connection.query(posts_updateQuery,[update_obj,values], (error, results, fields) => {
+            let update_obj = {
+                post_title : req.body.post_title,
+                post_content : req.body.post_content,
+                update_time : getMysqlDate()
+            };
+
+            if(req.body.img_url === null){
+                update_obj = {
+                    ...update_obj,
+                    img_url : null
+                }
+            }
+
+            if(req.file){
+                update_obj = {
+                    post_title : JSON.parse(req.body.post).post_title,
+                    post_content : JSON.parse(req.body.post).post_content,
+                    img_url : `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
+                    update_time : getMysqlDate()
+                }
+            }
+            console.log(update_obj)
+            const update_query = 'UPDATE posts SET ? WHERE post_id = ?';
+            const update_values = [ update_obj, req.params.id ];
+            connection.query(update_query, update_values, (error, results, fields) => {
                 if(error) {
                     if(req.file) deleteFile(req.file.filename,next);
                     return next(error)
                 }
 
-                // delete old file in the disk
-                if(req.file && result.img_url !== null) {
-                    const filename = result.img_url.split('/images/')[1];
+                if((req.file && post.img_url !== null) || (req.body.img_url === null && post.img_url !== null) ) {
+                    const filename = post.img_url.split('/images/')[1];
                     deleteFile(filename,next);
                 }
     
-                // if !req.file, need to delete the file in the disk for cases when user want to delete the photo
-                if(req.body.img_url === null && result.img_url !== null) {
-                    const filename = result.img_url.split('/images/')[1];
-                    deleteFile(filename,next);
-                }
-
                 res.status(201).json({message : 'publication modifié'})
             })
         })
@@ -129,10 +137,8 @@ exports.modifyPost = (req, res, next) => {
 
 exports.deletePost = (req, res, next) => {
     mysqlConnect.then( connection => {
-        const posts_query = 'SELECT * FROM posts WHERE ?';
-        const values = {post_id : req.params.id};
-
-        connection.query(posts_query, values, (error, results, fields) => {
+        const posts_query = 'SELECT * FROM posts WHERE post_id = ?';
+        connection.query(posts_query, [req.params.id], (error, results, fields) => {
             if(error) {
                 return next(error)
             }
@@ -141,7 +147,7 @@ exports.deletePost = (req, res, next) => {
                 return next( new ErrorResponse('requête non autorisée',401))
             }
 
-            const result = results[0];
+            const post = results[0];
             const query = 'UPDATE posts SET ? WHERE ?'
             const query_value = { delete_time : getMysqlDate() };
 
@@ -150,8 +156,8 @@ exports.deletePost = (req, res, next) => {
                     return next(error)
                 }
                 // soft delete, delete img in disk ?
-                if(result.img_url !== null){
-                    const filename = result.img_url.split('/images/')[1];
+                if(post.img_url !== null){
+                    const filename = post.img_url.split('/images/')[1];
                     deleteFile(filename,next)
                 }
 
