@@ -18,14 +18,13 @@ const deleteFile = (filename,next) => {
 exports.addReply = (req, res, next) => {
     console.log('in addReply controller');
 
-    if(req.body.reply && !req.file){
-        return next( new ErrorResponse('mauvaise requête',400))
+    const isFormData = req.get('content-type').includes('multipart/form-data');
+
+    if(isFormData && (!req.body.reply || !req.file)){
+        if(req.file) deleteFile (req.file.filename,next);
+        return next ( new ErrorResponse('mauvaise requête', 400))
     }
 
-    if(!req.body.reply && req.file){
-        deleteFile(req.file.filename,next);
-        return next( new ErrorResponse('mauvaise requête',400))
-    }
     //  when user publish only text
     let body = req.body;
     let { reply_content } = body;
