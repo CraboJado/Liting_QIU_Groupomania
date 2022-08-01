@@ -14,8 +14,4 @@ router.delete('/:id/:userId',auth, deleteComment)
 
 router.post('/:id/:userId/like', auth, likeComment)
 
-router.post('/:userId/:id/reply',(req,res,next) => {
-    res.status(200).json({ message: 'reply at one comment'})
-})
-
 module.exports = router
