@@ -3,7 +3,8 @@ const app = express();
 const path = require('path');
 const userRoutes = require('./routes/user');
 const postRoutes = require('./routes/post');
-const commentRoutes = require('./routes/comments')
+const commentRoutes = require('./routes/comments');
+const replyRoutes = require('./routes/replies');
 const errorHandler = require('./middlewares/errorHandler');
 
 
@@ -19,10 +20,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api/auth',userRoutes);
 
 // post routes
-app.use('/api/posts',postRoutes)
+app.use('/api/posts',postRoutes);
 
 // comment routes
-app.use('/api/comments',commentRoutes)
+app.use('/api/comments',commentRoutes);
+
+// reply routes
+app.use('/api/replies',replyRoutes);
 
 app.use(errorHandler);
 
