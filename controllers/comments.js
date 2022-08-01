@@ -84,10 +84,16 @@ exports.modifyComment = (req, res, next) => {
                 return next( new ErrorResponse('requête non autorisée',401) );
             }
             
-
             let update_obj = {
                 comment_content: req.body.comment_content,
                 update_time : getMysqlDate()
+            }
+
+            if(req.body.img_url === null){
+                update_obj = {
+                    ...update_obj,
+                    img_url : null
+                }
             }
 
             if(req.file){
@@ -106,7 +112,7 @@ exports.modifyComment = (req, res, next) => {
                     return next(error)
                 }
 
-                if(req.body.img_url === null || req.file){
+                if((req.body.img_url === null && comment.img_url !== null) || (req.file && comment.img_url !== null)){
                     const filename = comment.img_url.split('/images/')[1];
                     deleteFile(filename, next);
                 }
