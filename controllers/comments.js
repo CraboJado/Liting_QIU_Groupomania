@@ -18,14 +18,13 @@ const deleteFile = (filename,next) => {
 exports.addComment = (req, res, next) => {
     console.log('in addComment controller');
     console.log(req.query)
-    if(req.body.comment && !req.file){
-        return next( new ErrorResponse('mauvaise requête',400))
+    const isFormData = req.get('content-type').includes('multipart/form-data');
+
+    if(isFormData && (!req.body.comment || !req.file)){
+        if(req.file) deleteFile (req.file.filename,next);
+        return next ( new ErrorResponse('mauvaise requête', 400))
     }
 
-    if(!req.body.comment && req.file){
-        deleteFile(req.file.filename,next);
-        return next( new ErrorResponse('mauvaise requête',400))
-    }
     //  when user publish only text
     let body = req.body;
     let { comment_content } = body;
@@ -55,15 +54,12 @@ exports.addComment = (req, res, next) => {
 }
 
 exports.modifyComment = (req, res, next) => {
-    if(req.body.comment && !req.file) {
+    const isFormData = req.get('content-type').includes('multipart/form-data');
+    if(isFormData && (!req.body.comment || !req.file)){
+        if(req.file) deleteFile (req.file.filename,next);
         return next ( new ErrorResponse('mauvaise requête', 400))
     }
 
-    if(!req.body.comment && req.file) {
-        deleteFile (req.file.filename,next);
-        return next ( new ErrorResponse('mauvaise requête', 400))
-    }
-    
     const comments_query = 'SELECT * FROM comments WHERE comment_id = ? '
     mysqlConnect.then( connection => {
         connection.query(comments_query, [req.params.id], (error, results, fields) => {
@@ -213,7 +209,7 @@ exports.likeComment = (req, res, next) => {
                 }
             }
 
-            if(foundLike){
+            if(foundDislike){
                 const newDislike = comment.dislike.filter(element => element !== req.params.userId)
                 update_obj = {
                     ...update_obj,
