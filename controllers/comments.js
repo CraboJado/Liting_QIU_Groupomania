@@ -122,3 +122,33 @@ exports.modifyComment = (req, res, next) => {
         })
     })
 }
+
+exports.deleteComment = (req, res, next) => {
+    const comments_query = 'SELECT * FROM comments WHERE comment_id = ?';
+    mysqlConnect.then( connection => {
+        connection.query(comments_query, [ req.params.id ], (error, results, fields) => {
+            if(error) return next(error);
+
+            if(!results.length) return next( new ErrorResponse('commentaire n\'existe pas', 404));
+
+            if(!req.auth.isAdmin && (req.auth.userId !== results[0].user_id)){
+                return next( new ErrorResponse('requête non authorisée', 401))
+            }
+
+            const comment = results[0];
+            const update_query = 'UPDATE comments SET ? WHERE comment_id = ?';
+            const update_obj = { delete_time : getMysqlDate() };
+            connection.query(update_query,[ update_obj, req.params.id ], (error, results, fields) => {
+                if(error) return next(error);
+                
+                if(comment.img_url !== null) {
+                    const filename = comment.img_url.split('/images/')[1];
+                    deleteFile(filename,next);
+                }
+
+                res.status(200).json({ message: 'commentaire supprimé'})
+            })
+        })
+    })
+    
+}
