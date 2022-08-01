@@ -2,13 +2,11 @@ const express = require('express');
 const router = express.Router();
 const multer = require('../middlewares/multer_config');
 const auth = require('../middlewares/auth')
-const { addComment, modifyComment, deleteComment} = require('../controllers/comments')
+const { addComment, modifyComment, deleteComment, getAllComments} = require('../controllers/comments')
 
-router.get('/:userId/:postId',(req,res,next) => {
-    res.status(200).json({ message: 'get all comments'})
-})
+router.get('/:userId/:postId', auth, getAllComments)
 
-router.post('/:userId/:postId',multer,addComment)
+router.post('/:userId/:postId',auth, multer,addComment)
 
 router.put('/:id/:userId',auth,multer,modifyComment)
 
