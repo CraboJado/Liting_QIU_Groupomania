@@ -140,7 +140,7 @@ exports.deleteComment = (req, res, next) => {
             const update_obj = { delete_time : getMysqlDate() };
             connection.query(update_query,[ update_obj, req.params.id ], (error, results, fields) => {
                 if(error) return next(error);
-                
+
                 if(comment.img_url !== null) {
                     const filename = comment.img_url.split('/images/')[1];
                     deleteFile(filename,next);
@@ -148,6 +148,17 @@ exports.deleteComment = (req, res, next) => {
 
                 res.status(200).json({ message: 'commentaire supprimé'})
             })
+        })
+    })
+    
+}
+
+exports.getAllComments = (req, res, next) => {
+    const comments_query = 'SELECT * FROM comments WHERE post_id = ? AND delete_time IS ?'
+    mysqlConnect.then( connection => {
+        connection.query(comments_query,[ req.params.postId, null ], (error, results, fields) => {
+            if(error) return next(error);
+            res.status(200).json(results);
         })
     })
     
