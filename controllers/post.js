@@ -17,14 +17,14 @@ const deleteFile = (filename,next) => {
 
 exports.addPost = (req, res, next) => {
     console.log('in addPost controller');
-    if(req.body.post && !req.file){
-        return next( new ErrorResponse('mauvaise requête',400))
+
+    const isFormData = req.get('content-type').includes('multipart/form-data');
+
+    if(isFormData && (!req.body.post || !req.file)){
+        if(req.file) deleteFile (req.file.filename,next);
+        return next ( new ErrorResponse('mauvaise requête', 400))
     }
 
-    if(!req.body.post && req.file){
-        deleteFile(req.file.filename,next);
-        return next( new ErrorResponse('mauvaise requête',400))
-    }
     //  when user publish only text
     let body = req.body;
     let { post_title, post_content } = body;
@@ -65,15 +65,13 @@ exports.addPost = (req, res, next) => {
 
 exports.modifyPost = (req, res, next) => {
     console.log('in modifypost req.params', req.params)
-    if(req.body.post && !req.file) {
+    const isFormData = req.get('content-type').includes('multipart/form-data');
+
+    if(isFormData && (!req.body.post || !req.file)){
+        if(req.file) deleteFile (req.file.filename,next);
         return next ( new ErrorResponse('mauvaise requête', 400))
     }
-
-    if(!req.body.post && req.file) {
-        deleteFile (req.file.filename,next);
-        return next ( new ErrorResponse('mauvaise requête', 400))
-    }
-
+    
     const posts_query = 'SELECT * FROM posts WHERE post_id = ?';
     mysqlConnect.then( connection => {
         connection.query(posts_query ,[req.params.id] ,(error, results, fields) => {
