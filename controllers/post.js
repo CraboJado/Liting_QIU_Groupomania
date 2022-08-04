@@ -84,7 +84,7 @@ exports.modifyPost = (req, res, next) => {
 
             const post = results[0];
         
-            if(!req.auth.isAdmin && post.user_id !== req.auth.userId ){
+            if(!req.auth.isAdmin && post.user_id !== req.params.userId ){
                 if(req.file) deleteFile (req.file.filename,next);
                 return next( new ErrorResponse('requête non autorisée', 401) )
             }
