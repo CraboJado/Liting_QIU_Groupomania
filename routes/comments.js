@@ -5,7 +5,7 @@ const { addComment, modifyComment, deleteComment, getAllComments, likeComment} =
 
 const router = express.Router();
 
-router.get('/:userId/:postId', auth, getAllComments)
+router.get('/:userId', auth, getAllComments)
 
 router.post('/:userId',auth, multer,addComment)
 
