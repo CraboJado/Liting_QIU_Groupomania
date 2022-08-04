@@ -69,9 +69,9 @@ exports.modifyPost = (req, res, next) => {
         return next ( new ErrorResponse('mauvaise requête', 400))
     }
     
-    const posts_query = 'SELECT * FROM posts WHERE post_id = ?';
+    const posts_query = 'SELECT * FROM posts WHERE post_id = ? AND delete_time IS ?';
     mysqlConnect.then( connection => {
-        connection.query(posts_query ,[req.params.id] ,(error, results, fields) => {
+        connection.query(posts_query ,[req.params.id, null] ,(error, results, fields) => {
             if(error) {
                 if(req.file) deleteFile(req.file.filename,next);
                 return next(error)
