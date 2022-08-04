@@ -17,7 +17,6 @@ const deleteFile = (filename,next) => {
 
 exports.addPost = (req, res, next) => {
     console.log('in addPost controller');
-
     const isFormData = req.get('content-type').includes('multipart/form-data');
 
     if(isFormData && (!req.body.post || !req.file)){
@@ -26,16 +25,14 @@ exports.addPost = (req, res, next) => {
     }
 
     //  when user publish only text
-    let body = req.body;
-    let { post_title, post_content } = body;
+    let { post_title, post_content } = req.body;
     let posts_query = 'INSERT INTO posts (post_id, user_id, post_title, post_content, `like`, dislike, create_time) VALUES (?, ?, ?, ?, ?, ?, ?)';
     let insert_values = [ uid(), req.params.userId, post_title, post_content, '[]', '[]', getMysqlDate() ];
 
     // when user publish text and photo
-    if(req.file) {
-        body = JSON.parse(req.body.post);
-        post_title = body.post_title;
-        post_content = body.post_content;
+    if(isFormData) {
+        post_title = JSON.parse(req.body.post).post_title;
+        post_content = JSON.parse(req.body.post).post_content;
         const img_url = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
         posts_query = 'INSERT INTO posts ( post_id, user_id, post_title, post_content, img_url, `like`, dislike, create_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
         insert_values = [ uid(), req.params.userId, post_title, post_content, img_url, '[]', '[]', getMysqlDate() ];
