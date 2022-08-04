@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.get('/:userId/:postId', auth, getAllComments)
 
-router.post('/:userId/:postId',auth, multer,addComment)
+router.post('/:userId',auth, multer,addComment)
 
 router.put('/:id/:userId',auth,multer,modifyComment)
 
