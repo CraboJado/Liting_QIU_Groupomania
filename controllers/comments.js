@@ -17,29 +17,28 @@ const deleteFile = (filename,next) => {
 
 exports.addComment = (req, res, next) => {
     console.log('in addComment controller');
-    console.log(req.query)
     const isFormData = req.get('content-type').includes('multipart/form-data');
+    console.log(isFormData);
+    console.log(req.body);
 
     if(isFormData && (!req.body.comment || !req.file)){
         if(req.file) deleteFile (req.file.filename,next);
-        return next ( new ErrorResponse('mauvaise requête', 400))
+        return next ( new ErrorResponse('mauvaise requête', 400));
     }
 
+  
     //  when user publish only text
-    let body = req.body;
-    let { comment_content } = body;
-    const user_id = req.params.userId
-    const post_id = req.params.id
-    let comments_query = 'INSERT INTO comments (comment_id, user_id, post_id, comment_content, `like`, dislike, create_time) VALUES (?, ?, ?, ?, ?, ?, ?)';
-    let insert_values = [ uid(), req.params.userId, req.params.postId, comment_content, '[]', '[]', getMysqlDate() ];
+    let { comment_content , postId } = req.body;
+    let comments_query = 'INSERT INTO comments (comment_id, user_id, post_id, comment_content, flag, `like`, dislike, create_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+    let insert_values = [ uid(), req.params.userId, postId, comment_content, req.body.flag,'[]', '[]', getMysqlDate() ];
 
-    // when user publish text and photo
+    // when user publish with a photo
     if(req.file) {
-        body = JSON.parse(req.body.comment);
-        comment_content = body.comment_content;
+        comment_content = JSON.parse(req.body.comment).comment_content;
+        postId = JSON.parse(req.body.comment).postId;
         const img_url = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
-        comments_query = 'INSERT INTO comments ( comment_id, user_id, post_id, comment_content, img_url, `like`, dislike, create_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-        insert_values = [ uid(), req.params.userId, req.params.postId, comment_content, img_url, '[]', '[]', getMysqlDate() ];
+        comments_query = 'INSERT INTO comments ( comment_id, user_id, post_id, comment_content, flag, img_url, `like`, dislike, create_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
+        insert_values = [ uid(), req.params.userId, postId, comment_content, JSON.parse(req.body.comment).flag, img_url, '[]', '[]', getMysqlDate() ];
     }
 
     mysqlConnect.then( connection => {
