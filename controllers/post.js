@@ -132,8 +132,8 @@ exports.modifyPost = (req, res, next) => {
 
 exports.deletePost = (req, res, next) => {
     mysqlConnect.then( connection => {
-        const posts_query = 'SELECT * FROM posts WHERE post_id = ?';
-        connection.query(posts_query, [req.params.id], (error, results, fields) => {
+        const posts_query = 'SELECT * FROM posts WHERE post_id = ? AND delete_time IS ?';
+        connection.query(posts_query, [req.params.id,null], (error, results, fields) => {
             if(error) {
                 return next(error)
             }
@@ -146,7 +146,10 @@ exports.deletePost = (req, res, next) => {
 
             const post = results[0];
             const query = 'UPDATE posts SET ? WHERE post_id = ?'
-            const query_value = { delete_time : getMysqlDate() };
+            const query_value = { 
+                    img_url: null, 
+                    delete_time : getMysqlDate() 
+                };
             connection.query(query, [query_value,req.params.id], (error, results, fields) => {
                 if(error){
                     return next(error)
