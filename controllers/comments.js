@@ -118,20 +118,20 @@ exports.modifyComment = (req, res, next) => {
 }
 
 exports.deleteComment = (req, res, next) => {
-    const comments_query = 'SELECT * FROM comments WHERE comment_id = ?';
+    const comments_query = 'SELECT * FROM comments WHERE comment_id = ? AND delete_time IS ?';
     mysqlConnect.then( connection => {
-        connection.query(comments_query, [ req.params.id ], (error, results, fields) => {
+        connection.query(comments_query, [ req.params.id, null], (error, results, fields) => {
             if(error) return next(error);
 
             if(!results.length) return next( new ErrorResponse('commentaire n\'existe pas', 404));
 
-            if(!req.auth.isAdmin && (req.auth.userId !== results[0].user_id)){
+            if(!req.auth.isAdmin && (req.params.userId !== results[0].user_id)){
                 return next( new ErrorResponse('requête non authorisée', 401))
             }
 
             const comment = results[0];
             const update_query = 'UPDATE comments SET ? WHERE comment_id = ?';
-            const update_obj = { delete_time : getMysqlDate() };
+            const update_obj = { img_url : null, delete_time : getMysqlDate() };
             connection.query(update_query,[ update_obj, req.params.id ], (error, results, fields) => {
                 if(error) return next(error);
 
@@ -148,9 +148,10 @@ exports.deleteComment = (req, res, next) => {
 }
 
 exports.getAllComments = (req, res, next) => {
+
     const comments_query = 'SELECT * FROM comments WHERE post_id = ? AND delete_time IS ?'
     mysqlConnect.then( connection => {
-        connection.query(comments_query,[ req.params.postId, null ], (error, results, fields) => {
+        connection.query(comments_query,[ req.body.postId, null ], (error, results, fields) => {
             if(error) return next(error);
             res.status(200).json(results);
         })
