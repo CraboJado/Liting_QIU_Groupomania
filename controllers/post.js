@@ -226,14 +226,17 @@ const getUpdateValues = (req,post) => {
 
 exports.likePost = (req, res, next) => {
     console.log('in likePost controller', req.body.like)
-    const posts_query = 'SELECT * FROM posts WHERE post_id = ?'
-    const values = [req.params.id]
+    const posts_query = 'SELECT * FROM posts WHERE post_id = ? AND delete_time IS ?'
+    const values = [req.params.id, null];
 
     mysqlConnect.then( connection => {
         connection.query(posts_query,values,(error, results, fields) => {
             if(error){
                 return next(error)
             }
+
+            if(!results.length) return next( new ErrorResponse('publication n\'existe pas',404));
+            
             const { like, dislike } = results[0];
             const foundDislike = dislike.find(element => element === req.auth.userId);
             const foundLike = like.find(element => element === req.auth.userId);
