@@ -26,7 +26,6 @@ exports.addComment = (req, res, next) => {
         return next ( new ErrorResponse('mauvaise requête', 400));
     }
 
-  
     //  when user publish only text
     let { comment_content , postId } = req.body;
     let comments_query = 'INSERT INTO comments (comment_id, user_id, post_id, comment_content, flag, `like`, dislike, create_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
@@ -59,9 +58,9 @@ exports.modifyComment = (req, res, next) => {
         return next ( new ErrorResponse('mauvaise requête', 400))
     }
 
-    const comments_query = 'SELECT * FROM comments WHERE comment_id = ? '
+    const comments_query = 'SELECT * FROM comments WHERE comment_id = ? AND delete_time IS ?'
     mysqlConnect.then( connection => {
-        connection.query(comments_query, [req.params.id], (error, results, fields) => {
+        connection.query(comments_query, [req.params.id, null], (error, results, fields) => {
             if(error){
                 if(req.file) deleteFile(req.file.filename, next);
                 return next(error);
@@ -74,7 +73,7 @@ exports.modifyComment = (req, res, next) => {
 
             const comment = results[0];
 
-            if(!req.auth.isAdmin && (comment.user_id !== req.auth.userId)) {
+            if(!req.auth.isAdmin && (comment.user_id !== req.params.userId)) {
                 if(req.file) deleteFile(req.file.filename, next);
                 return next( new ErrorResponse('requête non autorisée',401) );
             }
