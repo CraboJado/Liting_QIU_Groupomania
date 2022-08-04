@@ -160,9 +160,9 @@ exports.getAllComments = (req, res, next) => {
 }
 
 exports.likeComment = (req, res, next) => {
-    const comments_query = 'SELECT * FROM comments WHERE comment_id = ?';
+    const comments_query = 'SELECT * FROM comments WHERE comment_id = ? AND delete_time IS ?';
     mysqlConnect.then( connection => {
-        connection.query(comments_query,[ req.params.id ], (error, results, fields) => {
+        connection.query(comments_query,[ req.params.id , null ], (error, results, fields) => {
             if(error) return next(error);
 
             if(!results.length) return next( new ErrorResponse('commentaire n\'existe pas', 404));
