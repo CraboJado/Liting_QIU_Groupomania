@@ -51,7 +51,6 @@ exports.addPost = (req, res, next) => {
 }
 
 exports.modifyPost = (req, res, next) => {
-    console.log('in modifypost req.params', req.params)
     const isFormData = req.get('content-type').includes('multipart/form-data');
 
     if(isFormData && (!req.body.post || !req.file)){
@@ -79,12 +78,13 @@ exports.modifyPost = (req, res, next) => {
                 return next( new ErrorResponse('requête non autorisée', 401) )
             }
 
+            // if user modify only text in his post
             let update_obj = {
                 post_title : req.body.post_title,
                 post_content : req.body.post_content,
                 update_time : getMysqlDate()
             };
-
+            // if user want to delete the image in his post
             if(req.body.img_url === null){
                 update_obj = {
                     ...update_obj,
@@ -92,6 +92,7 @@ exports.modifyPost = (req, res, next) => {
                 }
             }
 
+            // if user want to modify the image in his post
             if(req.file){
                 update_obj = {
                     post_title : JSON.parse(req.body.post).post_title,
@@ -100,7 +101,7 @@ exports.modifyPost = (req, res, next) => {
                     update_time : getMysqlDate()
                 }
             }
-            console.log(update_obj)
+
             const update_query = 'UPDATE posts SET ? WHERE post_id = ?';
             const update_values = [ update_obj, req.params.id ];
             connection.query(update_query, update_values, (error, results, fields) => {
@@ -108,13 +109,13 @@ exports.modifyPost = (req, res, next) => {
                     if(req.file) deleteFile(req.file.filename,next);
                     return next(error)
                 }
-
+                // if user modify the img or user want to delete the image in his post
                 if((req.file && post.img_url !== null) || (req.body.img_url === null && post.img_url !== null) ) {
                     const filename = post.img_url.split('/images/')[1];
                     deleteFile(filename,next);
                 }
     
-                res.status(201).json({message : 'publication modifié'})
+                res.status(201).json({ message : 'publication modifié' })
             })
         })
     })
