@@ -159,10 +159,9 @@ exports.deletePost = (req, res, next) => {
 exports.getAllPosts = (req, res, next) => {
     const posts_query = 'SELECT * FROM posts WHERE delete_time IS ?';
     mysqlConnect.then( connection => {
-        connection.query(posts_query,[null],(error, results,fields) => {
-            if(error){
-                return next(error)
-            }
+        connection.query(posts_query,[ null ],(error, results,fields) => {
+            if(error) return next(error)
+
             res.status(201).json(results);
         })
     })
@@ -170,13 +169,10 @@ exports.getAllPosts = (req, res, next) => {
 
 exports.getPost = (req, res, next) => {
     const posts_query = 'SELECT * FROM posts WHERE delete_time IS ? AND post_id = ?';
-    const values = [ null, req.params.id]
     mysqlConnect.then( connection => {
-        connection.query(posts_query,values,(error, results, fields) => {
-            if(error) {
-                return next(error)
-            }
-            console.log(results);
+        connection.query(posts_query,[ null, req.params.id ],(error, results, fields) => {
+            if(error) return next(error)
+
             res.status(201).json(results);
         })
     })
