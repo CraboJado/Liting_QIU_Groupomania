@@ -2,18 +2,19 @@ const ErrorResponse = require('../utils/errorResponse');
 const mysqlConnect = require('../config/db');
 const getMysqlDate = require('../utils/getMysqlDate');
 const uid = require('../utils/getUid');
-const fs = require('fs');
-const path = require('path');
+const deleteFile = require('../utils/deleteFile')
+// const fs = require('fs');
+// const path = require('path');
 
-const deleteFile = (filename,next) => {
-    const filePath = path.join(__dirname,`../public/images/${filename}`);
-    console.log('filePath',filePath)
-    fs.unlink(filePath, err => {
-        if(err){
-            return next(new ErrorResponse ('requête échoué AA', 500))
-        }
-    })
-}
+// const deleteFile = (filename,next) => {
+//     const filePath = path.join(__dirname,`../public/images/${filename}`);
+//     console.log('filePath',filePath)
+//     fs.unlink(filePath, err => {
+//         if(err){
+//             return next(new ErrorResponse ('requête échoué AA', 500))
+//         }
+//     })
+// }
 
 exports.addPost = (req, res, next) => {
     console.log('in addPost controller');
@@ -26,16 +27,16 @@ exports.addPost = (req, res, next) => {
 
     //  when user publish only text
     let { post_title, post_content } = req.body;
-    let posts_query = 'INSERT INTO posts (post_id, user_id, post_title, post_content, `like`, dislike, create_time) VALUES (?, ?, ?, ?, ?, ?, ?)';
-    let insert_values = [ uid(), req.params.userId, post_title, post_content, '[]', '[]', getMysqlDate() ];
+    let posts_query = 'INSERT INTO posts (post_id, user_id, post_title, post_content, create_time) VALUES (?, ?, ?, ?, ?)';
+    let insert_values = [ uid(), req.params.userId, post_title, post_content, getMysqlDate() ];
 
     // when user publish text and photo
     if(isFormData) {
         post_title = JSON.parse(req.body.post).post_title;
         post_content = JSON.parse(req.body.post).post_content;
         const img_url = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
-        posts_query = 'INSERT INTO posts ( post_id, user_id, post_title, post_content, img_url, `like`, dislike, create_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-        insert_values = [ uid(), req.params.userId, post_title, post_content, img_url, '[]', '[]', getMysqlDate() ];
+        posts_query = 'INSERT INTO posts ( post_id, user_id, post_title, post_content, img_url, create_time) VALUES (?, ?, ?, ?, ?, ?)';
+        insert_values = [ uid(), req.params.userId, post_title, post_content, img_url, getMysqlDate() ];
     }
 
     mysqlConnect.then( connection => {
@@ -44,21 +45,10 @@ exports.addPost = (req, res, next) => {
                 if(req.file) deleteFile(req.file.filename,next);
                 return next(error)
             }
-            res.status(201).json({message : 'publication ajouté'})
+            res.status(201).json({ message : 'publication ajouté' })
         })
     })
 }
-
-    /* 
-    si img display none : means user want to delete the photo in his publication, otherwise, means user modify only the text content
-    frontend : img display none ? img_url === null : img_url === "http://localhost:3000/images/hellboy_sauce_hellfire_jpg_1658700756357.jpg"
-        req.body = {
-                "post_title": "post title1 MODI 121",
-        "post_content": "121 a long textssssssssssss"
-        "img_url" : "http://localhost:3000/images/hellboy_sauce_hellfire_jpg_1658700756357.jpg" or null
-        } 
-    */
-
 
 exports.modifyPost = (req, res, next) => {
     console.log('in modifypost req.params', req.params)
