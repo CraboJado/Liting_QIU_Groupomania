@@ -26,34 +26,25 @@ exports.signup = (req,res,next) => {
                 res.status(201).json({ message:"utilisateur créé" })
             })
         })
-        .catch( error => {
-            console.log('error in hash', error);
-            next(error)
-        })
+        .catch( error => next(error) )
     })
 }
 
-exports.login = (req,res,next) => {
-    console.log('in login controller', req.body);
+exports.login = (req, res, next) => {
     const { email, password } = req.body;
 
     const users_query = `SELECT * FROM users WHERE email = ?`;
-    mysqlConnect.then( connection => {
-        connection.query(users_query,[email], (error, results, fields) => {
-            if(error) {
-                console.log('error in users_query', error);
-                return next(error);
-            }
 
-            if(results.length === 0){
-               return next( new ErrorResponse('utilisateur n\'existe pas', 404) )
-            }
+    mysqlConnect.then( connection => {
+        connection.query(users_query, [email], (error, results, fields) => {
+            if(error) return next(error);
+    
+            if(!results.length) return next( new ErrorResponse('utilisateur n\'existe pas', 404) );
 
             bcrypt.compare(password,results[0].password)
             .then( valid => {
-                if(!valid) {
-                    return next( new ErrorResponse('requête non autorisée, mot de pass incorrect', 401) )
-                }
+                if(!valid) return next( new ErrorResponse('non autorisée, mot de pass incorrect', 401) )
+                
                 // if admin send token with isAdmin : true
                 const token = results[0].isAdmin ? 
                 jwt.sign({ data: results[0].user_id, isAdmin:true }, process.env.TOKEN_KEY, { expiresIn: process.env.TOKEN_EXPIRE })
@@ -62,10 +53,7 @@ exports.login = (req,res,next) => {
 
                 res.status(200).json({ userId:results[0].user_id, token })
             })
-            .catch( error => {
-                console.log('bcrypt promise catch block error', error);
-                next(error);
-            })
+            .catch( error => next(error) )
         })
     })
 }
