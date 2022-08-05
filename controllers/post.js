@@ -125,33 +125,32 @@ exports.deletePost = (req, res, next) => {
     mysqlConnect.then( connection => {
         const posts_query = 'SELECT * FROM posts WHERE post_id = ? AND delete_time IS ?';
         connection.query(posts_query, [req.params.id,null], (error, results, fields) => {
-            if(error) {
-                return next(error)
-            }
-
+            if(error) return next(error)
+            
             if(!results.length) return next( new ErrorResponse('publication n\'existe pas',404))
             
-            if(!req.auth.isAdmin && req.auth.userId !== results[0].user_id){
+            if(!req.auth.isAdmin && req.params.userId !== results[0].user_id){
                 return next( new ErrorResponse('requête non autorisée',401))
             }
 
             const post = results[0];
-            const query = 'UPDATE posts SET ? WHERE post_id = ?'
-            const query_value = { 
+
+            // soft delete, set delete_time and img_url 
+            const update_query = 'UPDATE posts SET ? WHERE post_id = ?'
+            const update_value = { 
                     img_url: null, 
                     delete_time : getMysqlDate() 
                 };
-            connection.query(query, [query_value,req.params.id], (error, results, fields) => {
-                if(error){
-                    return next(error)
-                }
-                // soft delete, only delete img in disk 
+            connection.query(update_query, [update_value,req.params.id], (error, results, fields) => {
+                if(error) return next(error)
+    
+                // delete img in disk if there is
                 if(post.img_url !== null){
                     const filename = post.img_url.split('/images/')[1];
                     deleteFile(filename,next)
                 }
 
-                res.status(201).json({message : 'publication supprimé'})
+                res.status(201).json({ message : 'publication supprimé' })
             })
         })
     })
