@@ -41,12 +41,14 @@ exports.addComment = (req, res, next) => {
 
 exports.modifyComment = (req, res, next) => {
     const isFormData = req.get('content-type').includes('multipart/form-data');
+
     if(isFormData && (!req.body.comment || !req.file)){
         if(req.file) deleteFile (req.file.filename,next);
         return next ( new ErrorResponse('mauvaise requête', 400))
     }
 
-    const comments_query = 'SELECT * FROM comments WHERE comment_id = ? AND delete_time IS ?'
+    const comments_query = 'SELECT * FROM comments WHERE comment_id = ? AND delete_time IS ?';
+
     mysqlConnect.then( connection => {
         connection.query(comments_query, [req.params.id, null], (error, results, fields) => {
             if(error){
@@ -56,14 +58,14 @@ exports.modifyComment = (req, res, next) => {
 
             if(!results.length) {
                 if(req.file) deleteFile(req.file.filename, next);
-                return next( new ErrorResponse('commentaire n\'existe pas',404) )
+                return next( new ErrorResponse('commentaire n\'existe pas', 404) )
             }
 
             const comment = results[0];
 
             if(!req.auth.isAdmin && (comment.user_id !== req.params.userId)) {
                 if(req.file) deleteFile(req.file.filename, next);
-                return next( new ErrorResponse('requête non autorisée',401) );
+                return next( new ErrorResponse('requête non autorisée', 401) );
             }
             
             let update_obj = {
@@ -87,7 +89,9 @@ exports.modifyComment = (req, res, next) => {
             }
 
             const update_query = 'UPDATE comments SET ? WHERE comment_id = ?';
+
             const update_values = [update_obj,req.params.id];
+            
             connection.query(update_query,update_values,(error,results,fields) => {
                 if(error){
                     if(req.file) deleteFile(req.file.filename, next);
@@ -107,6 +111,7 @@ exports.modifyComment = (req, res, next) => {
 
 exports.deleteComment = (req, res, next) => {
     const comments_query = 'SELECT * FROM comments WHERE comment_id = ? AND delete_time IS ?';
+
     mysqlConnect.then( connection => {
         connection.query(comments_query, [ req.params.id, null], (error, results, fields) => {
             if(error) return next(error);
@@ -118,8 +123,11 @@ exports.deleteComment = (req, res, next) => {
             }
 
             const comment = results[0];
+
             const update_query = 'UPDATE comments SET ? WHERE comment_id = ?';
+
             const update_obj = { img_url : null, delete_time : getMysqlDate() };
+
             connection.query(update_query,[ update_obj, req.params.id ], (error, results, fields) => {
                 if(error) return next(error);
 
@@ -136,11 +144,12 @@ exports.deleteComment = (req, res, next) => {
 }
 
 exports.getAllComments = (req, res, next) => {
+    const comments_query = 'SELECT * FROM comments WHERE post_id = ? AND delete_time IS ?';
 
-    const comments_query = 'SELECT * FROM comments WHERE post_id = ? AND delete_time IS ?'
     mysqlConnect.then( connection => {
         connection.query(comments_query,[ req.body.postId, null ], (error, results, fields) => {
             if(error) return next(error);
+
             res.status(200).json(results);
         })
     })
@@ -148,75 +157,54 @@ exports.getAllComments = (req, res, next) => {
 }
 
 exports.likeComment = (req, res, next) => {
-    const comments_query = 'SELECT * FROM comments WHERE comment_id = ? AND delete_time IS ?';
+    if(!Number.isInteger(req.body.like) || req.body.like > 1 || req.body.like < -1) {
+        return next( new ErrorResponse('mauvaise requête',400));
+    }
+
+    const comments_query = 'SELECT comment_id FROM comments WHERE comment_id = ? AND delete_time IS ?';
+
     mysqlConnect.then( connection => {
-        connection.query(comments_query,[ req.params.id , null ], (error, results, fields) => {
+        connection.query(comments_query,[ req.params.id, null], (error, results, fields) => {
             if(error) return next(error);
 
-            if(!results.length) return next( new ErrorResponse('commentaire n\'existe pas', 404));
+            if(!results.length) return next( new ErrorResponse('la commentaire n\'existe pas',404));
 
-            const comment = results[0];
-            const foundLike = comment.like.find(element => element === req.params.userId);
-            const foundDislike = comment.dislike.find(element => element === req.params.userId);
+            const reactions_query = 'SELECT * FROM reactions WHERE comment_id = ? AND user_id = ?';
 
-            if(req.body.like === 0 && (!foundLike && !foundDislike)){
-                return next( new ErrorResponse('la requête ne peut pas etre traité 0', 400))
-            }
-
-            if(req.body.like !== 0 && ( foundLike || foundDislike)){
-                return next( new ErrorResponse('la requête ne peut pas etre traité', 400))
-            }
-
-            
-            let update_obj = {
-                update_time : getMysqlDate()
-            }
-
-            if(req.body.like === 1){
-                comment.like.push(req.params.userId);
-                update_obj = {
-                    ...update_obj,
-                    like : JSON.stringify(comment.like)
-                }
-            }
-
-            if(req.body.like === -1){
-                comment.dislike.push(req.params.userId);
-                update_obj = {
-                    ...update_obj,
-                    dislike : JSON.stringify(comment.dislike)
-                }
-            }
-
-            if(foundLike){
-                const newLike = comment.like.filter(element => element !== req.params.userId);
-                update_obj = {
-                    ...update_obj,
-                    like : JSON.stringify(newLike)
-                }
-            }
-
-            if(foundDislike){
-                const newDislike = comment.dislike.filter(element => element !== req.params.userId)
-                update_obj = {
-                    ...update_obj,
-                    dislike : JSON.stringify(newDislike)
-                }
-            }
-
-            const update_query = 'UPDATE comments SET ? WHERE comment_id = ?';
-            connection.query(update_query,[ update_obj,req.params.id ], (error, results, fields) => {
+            connection.query(reactions_query,[req.params.id, req.params.userId],(error, results, fields) => {
                 if(error) return next(error);
+    
+                if(!results.length) {
+                    if(req.body.like === 0) return next( new ErrorResponse('mauvaise requête',400));
+    
+                    const insert_query = 'INSERT INTO reactions(user_id, comment_id, reaction, create_time) VALUES(?,?,?,?)';
 
-                if(req.body.like === 0){
-                    return  res.status(200).json({ message: 'anulation effectué'})
+                    return connection.query(insert_query,[req.params.userId, req.params.id, req.body.like , getMysqlDate() ], (error, results, fields) => {
+                        if(error) return next(error);
+    
+                        if(req.body.like === 1) return res.status(201).json({ message: 'like réussie' });
+        
+                        res.status(201).json({ message: 'dislike réussie' });
+                    })
                 }
-
-                if(req.body.like === 1){
-                    return  res.status(200).json({ message: 'like ajouté'})
+    
+                if((results[0].reaction !== 0 && req.body.like !== 0) || (results[0].reaction === 0 && req.body.like === 0)){
+                    return next( new ErrorResponse('mauvaise requête',400))
                 }
-
-                res.status(200).json({ message: 'dislike ajouté'})
+    
+                const update_query = 'UPDATE reactions SET ? WHERE comment_id = ? AND user_id = ?';
+    
+                const update_values = [ { reaction: req.body.like, update_time: getMysqlDate() }, req.params.id, req.params.userId ];
+    
+                connection.query(update_query, update_values, (error, results, fields) => {
+                    if(error) return next(error);
+    
+                    if(req.body.like === 1) return res.status(201).json({ message: 'like réussie' });
+    
+                    if(req.body.like === -1) return res.status(201).json({ message: 'dislike réussie' });
+    
+                    res.status(201).json({ message: 'annulation réussie' });
+                })
             })
         })
     })
