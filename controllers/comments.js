@@ -2,42 +2,30 @@ const ErrorResponse = require('../utils/errorResponse');
 const mysqlConnect = require('../config/db');
 const getMysqlDate = require('../utils/getMysqlDate');
 const uid = require('../utils/getUid');
-const fs = require('fs');
-const path = require('path');
+const deleteFile = require('../utils/deleteFile');
 
-const deleteFile = (filename,next) => {
-    const filePath = path.join(__dirname,`../public/images/${filename}`);
-    console.log('filePath',filePath)
-    fs.unlink(filePath, err => {
-        if(err){
-            return next(new ErrorResponse ('requête échoué AA', 500))
-        }
-    })
-}
 
 exports.addComment = (req, res, next) => {
-    console.log('in addComment controller');
     const isFormData = req.get('content-type').includes('multipart/form-data');
-    console.log(isFormData);
-    console.log(req.body);
-
+    
     if(isFormData && (!req.body.comment || !req.file)){
         if(req.file) deleteFile (req.file.filename,next);
         return next ( new ErrorResponse('mauvaise requête', 400));
     }
 
     //  when user publish only text
-    let { comment_content , postId } = req.body;
-    let comments_query = 'INSERT INTO comments (comment_id, user_id, post_id, comment_content, flag, `like`, dislike, create_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-    let insert_values = [ uid(), req.params.userId, postId, comment_content, req.body.flag,'[]', '[]', getMysqlDate() ];
+    let { comment_content , postId, flag } = req.body;
+    let comments_query = 'INSERT INTO comments (comment_id, user_id, post_id, comment_content, flag, create_time) VALUES (?, ?, ?, ?, ?, ?)';
+    let insert_values = [ uid(), req.params.userId, postId, comment_content, flag, getMysqlDate() ];
 
     // when user publish with a photo
     if(req.file) {
         comment_content = JSON.parse(req.body.comment).comment_content;
         postId = JSON.parse(req.body.comment).postId;
+        flag = JSON.parse(req.body.comment).flag;
         const img_url = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
-        comments_query = 'INSERT INTO comments ( comment_id, user_id, post_id, comment_content, flag, img_url, `like`, dislike, create_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)';
-        insert_values = [ uid(), req.params.userId, postId, comment_content, JSON.parse(req.body.comment).flag, img_url, '[]', '[]', getMysqlDate() ];
+        comments_query = 'INSERT INTO comments ( comment_id, user_id, post_id, comment_content, flag, img_url, create_time) VALUES (?, ?, ?, ?, ?, ?, ?)';
+        insert_values = [ uid(), req.params.userId, postId, comment_content, flag, img_url, getMysqlDate() ];
     }
 
     mysqlConnect.then( connection => {
