@@ -4,7 +4,10 @@ const getMysqlDate = require('../utils/getMysqlDate');
 const uid = require('../utils/getUid');
 const deleteFile = require('../utils/deleteFile');
 
-
+/*
+req.body = { content, postId, comment_id }
+comment_id is null if it is a comment to a post
+*/
 exports.addComment = (req, res, next) => {
     const isFormData = req.get('content-type').includes('multipart/form-data');
     
@@ -14,18 +17,18 @@ exports.addComment = (req, res, next) => {
     }
 
     //  when user publish only text
-    let { comment_content , postId, flag } = req.body;
-    let comments_query = 'INSERT INTO comments (comment_id, user_id, post_id, comment_content, flag, create_time) VALUES (?, ?, ?, ?, ?, ?)';
-    let insert_values = [ uid(), req.params.userId, postId, comment_content, flag, getMysqlDate() ];
+    let { content, postId, comment_id } = req.body;
+    let comments_query = 'INSERT INTO comments (reply_id, user_id, comment_id, post_id, reply_content, create_time) VALUES (?, ?, ?, ?, ?,?)';
+    let insert_values = [uid(), req.params.userId, comment_id, postId, content, getMysqlDate() ];
 
     // when user publish with a photo
-    if(req.file) {
-        comment_content = JSON.parse(req.body.comment).comment_content;
+    if(req.file){
+        content = JSON.parse(req.body.comment).content;
         postId = JSON.parse(req.body.comment).postId;
-        flag = JSON.parse(req.body.comment).flag;
+        comment_id =  JSON.parse(req.body.comment).comment_id;
         const img_url = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
-        comments_query = 'INSERT INTO comments ( comment_id, user_id, post_id, comment_content, flag, img_url, create_time) VALUES (?, ?, ?, ?, ?, ?, ?)';
-        insert_values = [ uid(), req.params.userId, postId, comment_content, flag, img_url, getMysqlDate() ];
+        comments_query = 'INSERT INTO comments (reply_id, user_id, comment_id, post_id, reply_content, img_url, create_time) VALUES (?, ?, ?, ?, ?, ?, ?)';
+        insert_values = [uid(), req.params.userId, comment_id, postId, content, img_url, getMysqlDate() ];
     }
 
     mysqlConnect.then( connection => {
@@ -109,11 +112,51 @@ exports.modifyComment = (req, res, next) => {
     })
 }
 
+// delete also the comments related to the deleted comments ?
+
+
+const handler = (reply_idArr,connection,results) => {
+    let reply_ids = reply_idArr;
+    const update_query = `UPDATE comments2
+                          SET ?
+                          WHERE reply_id IN (${reply_ids})`;
+    const update_obj = { img_url : null, delete_time : getMysqlDate() };
+
+    connection.query(update_query,update_obj,(error,results) => {
+        if(error) return
+        const query = `SELECT reply_id FROM comments2 WHERE comment_id IN (${reply_ids})' AND delete_time IS NULL`;
+        connection.query(query,(error,results) => {
+            if(error) return
+            if(!results.length) return res.status(200).json({ message: 'commentaire supprimé'})
+            reply_ids = results.map(ele => ele.reply_id);
+            return handler(reply_ids,connection)
+        })
+    })
+}
+
+const deleteCommentHandler = (connection,req) => {
+    // const query = `SELECT reply_id FROM comments2 WHERE comment_id = '123' AND delete_time IS NULL`;
+    // delete reply=id 123 ( we get the id also from req.params.id), which is a comment, then we need to delete all replies relate to this comment ( reply_id 123)
+    // after that, need to check if there is replies relate to it reply=id 123
+    // so we do select replies of a comment 
+    const query = `SELECT reply_id FROM comments2 WHERE comment_id = ${req.params.id}' AND delete_time IS NULL`;
+    connection.query (query, (error , results) => {
+        if(error) return
+        if(!results.length) return res.status(200).json({ message: 'commentaire supprimé'})
+        // there is replies of comment 123, we map into a new arry ['125','126']
+        const reply_idArr = results.map(ele => ele.reply_id)
+
+        handler(reply_idArr,connection);
+
+    })
+}
+
 exports.deleteComment = (req, res, next) => {
-    const comments_query = 'SELECT * FROM comments WHERE comment_id = ? AND delete_time IS ?';
+    // const comments_query = 'SELECT * FROM comments WHERE comment_id = ? AND delete_time IS ?';
+    const comments2_query = 'SELECT * FROM comments2 WHERE reply_id = ? AND delete_time IS ?';
 
     mysqlConnect.then( connection => {
-        connection.query(comments_query, [ req.params.id, null], (error, results, fields) => {
+        connection.query(comments2_query, [ req.params.id, null], (error, results, fields) => {
             if(error) return next(error);
 
             if(!results.length) return next( new ErrorResponse('commentaire n\'existe pas', 404));
@@ -124,7 +167,8 @@ exports.deleteComment = (req, res, next) => {
 
             const comment = results[0];
 
-            const update_query = 'UPDATE comments SET ? WHERE comment_id = ?';
+            // const update_query = 'UPDATE comments SET ? WHERE comment_id = ?';
+            const update_query = 'UPDATE comments2 SET ? WHERE reply_id = ?';
 
             const update_obj = { img_url : null, delete_time : getMysqlDate() };
 
@@ -136,18 +180,31 @@ exports.deleteComment = (req, res, next) => {
                     deleteFile(filename,next);
                 }
 
-                res.status(200).json({ message: 'commentaire supprimé'})
+                const query = `SELECT reply_id FROM comments2 WHERE comment_id = ${req.params.id}' AND delete_time IS NULL`;
+                connection.query (query, (error , results) => {
+                    if(error) return
+                    if(!results.length) return
+                    // there is replies of comment 123, we map into a new arry ['125','126']
+                    const reply_idArr = results.map(ele => ele.reply_id)
+            
+                    handler(reply_idArr,connection);
+            
+                })
+
+
+                
             })
+
         })
     })
     
 }
 
 exports.getAllComments = (req, res, next) => {
-    const comments_query = 'SELECT * FROM comments WHERE post_id = ? AND delete_time IS ?';
+    const comments_query = 'SELECT * FROM comments WHERE post_id = ? AND flag = ? AND delete_time IS ?';
 
     mysqlConnect.then( connection => {
-        connection.query(comments_query,[ req.body.postId, null ], (error, results, fields) => {
+        connection.query(comments_query,[ req.body.postId, req.body.flag, null ], (error, results, fields) => {
             if(error) return next(error);
 
             res.status(200).json(results);
