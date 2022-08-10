@@ -50,7 +50,7 @@ exports.modifyComment = (req, res, next) => {
         return next ( new ErrorResponse('mauvaise requête', 400))
     }
 
-    const comments_query = 'SELECT * FROM comments WHERE comment_id = ? AND delete_time IS ?';
+    const comments_query = 'SELECT * FROM comments WHERE reply_id = ? AND delete_time IS ?';
 
     mysqlConnect.then( connection => {
         connection.query(comments_query, [req.params.id, null], (error, results, fields) => {
@@ -61,18 +61,18 @@ exports.modifyComment = (req, res, next) => {
 
             if(!results.length) {
                 if(req.file) deleteFile(req.file.filename, next);
-                return next( new ErrorResponse('commentaire n\'existe pas', 404) )
+                return next( new ErrorResponse('la réponse ou commentaire n\'existe pas', 404) )
             }
 
-            const comment = results[0];
+            const reply = results[0];
 
-            if(!req.auth.isAdmin && (comment.user_id !== req.params.userId)) {
+            if(!req.auth.isAdmin && (reply.user_id !== req.params.userId)) {
                 if(req.file) deleteFile(req.file.filename, next);
                 return next( new ErrorResponse('requête non autorisée', 401) );
             }
             
             let update_obj = {
-                comment_content: req.body.comment_content,
+                reply_content: req.body.content,
                 update_time : getMysqlDate()
             }
 
@@ -85,24 +85,24 @@ exports.modifyComment = (req, res, next) => {
 
             if(req.file){
                 update_obj = {
-                    comment_content: JSON.parse(req.body.comment).comment_content,
+                    reply_content: JSON.parse(req.body.comment).content,
                     img_url:`${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
                     update_time : getMysqlDate()
                 }
             }
 
-            const update_query = 'UPDATE comments SET ? WHERE comment_id = ?';
+            const update_query = 'UPDATE comments SET ? WHERE reply_id = ?';
 
             const update_values = [update_obj,req.params.id];
             
-            connection.query(update_query,update_values,(error,results,fields) => {
+            connection.query(update_query, update_values, (error,results,fields) => {
                 if(error){
                     if(req.file) deleteFile(req.file.filename, next);
                     return next(error)
                 }
 
-                if((req.body.img_url === null && comment.img_url !== null) || (req.file && comment.img_url !== null)){
-                    const filename = comment.img_url.split('/images/')[1];
+                if((req.body.img_url === null && reply.img_url !== null) || (req.file && reply.img_url !== null)){
+                    const filename = reply.img_url.split('/images/')[1];
                     deleteFile(filename, next);
                 }
 
