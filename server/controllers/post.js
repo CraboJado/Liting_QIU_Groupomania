@@ -199,7 +199,8 @@ exports.getPosts = (req, res, next) => {
 }
 
 exports.getPost = (req, res, next) => {
-    const posts_query = 'SELECT * FROM posts WHERE delete_time IS ? AND post_id = ?';
+    const posts_query = 'SELECT * FROM posts WHERE delete_time IS ? AND id = ?';
+
     mysqlConnect.then( connection => {
         connection.query(posts_query,[ null, req.params.id ],(error, results, fields) => {
             if(error) return next(error)
@@ -214,25 +215,31 @@ exports.likePost = (req, res, next) => {
         return next( new ErrorResponse('mauvaise requête',400));
     }
 
-    const posts_query = 'SELECT post_id FROM posts WHERE post_id = ? AND delete_time IS ?';
-
     mysqlConnect.then( connection => {
+        // check if post exsite 
+        const posts_query = 'SELECT id FROM posts WHERE id = ? AND delete_time IS ?';
+
         connection.query(posts_query,[ req.params.id, null], (error, results, fields) => {
             if(error) return next(error);
 
             if(!results.length) return next( new ErrorResponse('la publication n\'existe pas',404));
 
+            // when post exists, check if user has reactions to this post ( like or dislike reactions)
             const reactions_query = 'SELECT * FROM reactions WHERE post_id = ? AND user_id = ?';
+                                     // reaction
 
             connection.query(reactions_query,[req.params.id, req.params.userId],(error, results, fields) => {
                 if(error) return next(error);
-    
+                
+                // if no reactions related the post, then do insert query directly for valid user request
                 if(!results.length) {
                     if(req.body.like === 0) return next( new ErrorResponse('mauvaise requête',400));
     
                     const insert_query = 'INSERT INTO reactions(user_id, post_id, reaction, create_time) VALUES(?,?,?,?)';
 
-                    return connection.query(insert_query,[req.params.userId, req.params.id, req.body.like , getMysqlDate() ], (error, results, fields) => {
+                    const insert_values = [req.params.userId, req.params.id, req.body.like , getMysqlDate() ];
+
+                    return connection.query(insert_query, insert_values, (error, results, fields) => {
                         if(error) return next(error);
     
                         if(req.body.like === 1) return res.status(201).json({ message: 'like réussie' });
@@ -240,7 +247,8 @@ exports.likePost = (req, res, next) => {
                         res.status(201).json({ message: 'dislike réussie' });
                     })
                 }
-    
+                
+                // if user has already reactions related to the post, update tbl reactions for valid user request
                 if((results[0].reaction !== 0 && req.body.like !== 0) || (results[0].reaction === 0 && req.body.like === 0)){
                     return next( new ErrorResponse('mauvaise requête',400))
                 }
