@@ -6,7 +6,6 @@ const getMysqlDate = require('../utils/getMysqlDate');
 const { v4: uuidv4 } = require('uuid');
 
 exports.signup = (req,res,next) => {
-    console.log('in signup controller', req.body);
     const { email, password, name, department_id, job_id } = req.body;
     // signup a superadmin with a fixied email, 
     // this account can set other users as subAdmin with isAdmin = 1 if we need more admin accounts
@@ -16,13 +15,13 @@ exports.signup = (req,res,next) => {
     mysqlConnect.then( connection => {
         bcrypt.hash(password,10)
         .then( hash => {
-            const users_query = `INSERT INTO users (user_id, email, password, name, department_id, job_id, isAdmin, create_time) VALUES(?,?,?,?,?,?,?,?)`;
-            const insert_values = [uuidv4(),email, hash, name, department_id, job_id, isAdmin, getMysqlDate()]; // ajouter userid
+            const users_query = `INSERT INTO users (id, email, password, name, department_id, job_id, isAdmin, create_time) VALUES(?,?,?,?,?,?,?,?)`;
+            
+            const insert_values = [uuidv4(),email, hash, name, department_id, job_id, isAdmin, getMysqlDate()]; 
 
             connection.query(users_query, insert_values, (error, results, fields) => {
-                if (error) {
-                    return next(error)
-                }
+                if (error) return next(error);
+    
                 res.status(201).json({ message:"utilisateur créé" })
             })
         })
@@ -33,8 +32,9 @@ exports.signup = (req,res,next) => {
 exports.login = (req, res, next) => {
     const { email, password } = req.body;
 
-    const users_query = `SELECT * FROM users WHERE email = ?`;
-
+    // const users_query = `SELECT * FROM users WHERE email = ?`;
+    const users_query = `SELECT id, isAdmin, password FROM users WHERE email = ?`;
+    
     mysqlConnect.then( connection => {
         connection.query(users_query, [email], (error, results, fields) => {
             if(error) return next(error);
@@ -43,15 +43,15 @@ exports.login = (req, res, next) => {
 
             bcrypt.compare(password,results[0].password)
             .then( valid => {
-                if(!valid) return next( new ErrorResponse('non autorisée, mot de pass incorrect', 401) )
-                
-                // if admin send token with isAdmin : true
-                const token = results[0].isAdmin ? 
-                jwt.sign({ data: results[0].user_id, isAdmin:true }, process.env.TOKEN_KEY, { expiresIn: process.env.TOKEN_EXPIRE })
-                :
-                jwt.sign({ data: results[0].user_id, isAdmin:false }, process.env.TOKEN_KEY, { expiresIn: process.env.TOKEN_EXPIRE });
+                if(!valid) return next( new ErrorResponse('non autorisée, mot de pass incorrect', 401) );
 
-                res.status(200).json({ userId:results[0].user_id, token })
+                // if user logined is admin send token with isAdmin : true
+                const token = results[0].isAdmin ? 
+                jwt.sign({ data: results[0].id, isAdmin:true }, process.env.TOKEN_KEY, { expiresIn: process.env.TOKEN_EXPIRE })
+                :
+                jwt.sign({ data: results[0].id, isAdmin:false }, process.env.TOKEN_KEY, { expiresIn: process.env.TOKEN_EXPIRE });
+
+                res.status(200).json({ userId:results[0].id, token })
             })
             .catch( error => next(error) )
         })
