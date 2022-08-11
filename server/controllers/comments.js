@@ -112,92 +112,76 @@ exports.modifyComment = (req, res, next) => {
     })
 }
 
-// delete also the comments related to the deleted comments ?
+// delete also the replies related to the deleted comment
+const deleteHandler = (results, connection, next) => {
+    const reply_ids = results.map( ele => {
+        if(ele.img_url !== null){
+            const filename = ele.img_url.split('/images/')[1];
+            deleteFile(filename,next)
+        }
+        return ele.reply_id
+    });
 
+    const update_query = `UPDATE comments SET ? WHERE reply_id IN (?)`;
 
-const handler = (reply_idArr,connection,results) => {
-    let reply_ids = reply_idArr;
-    const update_query = `UPDATE comments2
-                          SET ?
-                          WHERE reply_id IN (${reply_ids})`;
     const update_obj = { img_url : null, delete_time : getMysqlDate() };
 
-    connection.query(update_query,update_obj,(error,results) => {
-        if(error) return
-        const query = `SELECT reply_id FROM comments2 WHERE comment_id IN (${reply_ids})' AND delete_time IS NULL`;
-        connection.query(query,(error,results) => {
-            if(error) return
-            if(!results.length) return res.status(200).json({ message: 'commentaire supprimé'})
-            reply_ids = results.map(ele => ele.reply_id);
-            return handler(reply_ids,connection)
+    connection.query(update_query,[update_obj, reply_ids],(error,results, fields) => {
+        if(error) return next(error);
+
+        const query = `SELECT * FROM comments WHERE comment_id IN (?) AND delete_time IS ?`;
+
+        connection.query(query,[reply_ids, null ], (error, results, fields) => {
+            if(error) return next(error);
+
+            if(!results.length) return 
+
+            return deleteHandler(results, connection, next)
         })
     })
 }
 
-const deleteCommentHandler = (connection,req) => {
-    // const query = `SELECT reply_id FROM comments2 WHERE comment_id = '123' AND delete_time IS NULL`;
-    // delete reply=id 123 ( we get the id also from req.params.id), which is a comment, then we need to delete all replies relate to this comment ( reply_id 123)
-    // after that, need to check if there is replies relate to it reply=id 123
-    // so we do select replies of a comment 
-    const query = `SELECT reply_id FROM comments2 WHERE comment_id = ${req.params.id}' AND delete_time IS NULL`;
-    connection.query (query, (error , results) => {
-        if(error) return
-        if(!results.length) return res.status(200).json({ message: 'commentaire supprimé'})
-        // there is replies of comment 123, we map into a new arry ['125','126']
-        const reply_idArr = results.map(ele => ele.reply_id)
-
-        handler(reply_idArr,connection);
-
-    })
-}
-
 exports.deleteComment = (req, res, next) => {
-    // const comments_query = 'SELECT * FROM comments WHERE comment_id = ? AND delete_time IS ?';
-    const comments2_query = 'SELECT * FROM comments2 WHERE reply_id = ? AND delete_time IS ?';
-
     mysqlConnect.then( connection => {
-        connection.query(comments2_query, [ req.params.id, null], (error, results, fields) => {
+        const comments_query = 'SELECT * FROM comments WHERE reply_id = ? AND delete_time IS ?';
+
+        connection.query(comments_query, [ req.params.id, null ], (error, results, fields) => {
             if(error) return next(error);
 
-            if(!results.length) return next( new ErrorResponse('commentaire n\'existe pas', 404));
+            if(!results.length) return next( new ErrorResponse('la réponse ou commentaire n\'existe pas', 404));
 
             if(!req.auth.isAdmin && (req.params.userId !== results[0].user_id)){
                 return next( new ErrorResponse('requête non authorisée', 401))
             }
 
-            const comment = results[0];
+            const reply = results[0];
 
-            // const update_query = 'UPDATE comments SET ? WHERE comment_id = ?';
-            const update_query = 'UPDATE comments2 SET ? WHERE reply_id = ?';
+            const update_query = 'UPDATE comments SET ? WHERE reply_id = ?';
 
             const update_obj = { img_url : null, delete_time : getMysqlDate() };
 
             connection.query(update_query,[ update_obj, req.params.id ], (error, results, fields) => {
                 if(error) return next(error);
 
-                if(comment.img_url !== null) {
-                    const filename = comment.img_url.split('/images/')[1];
+                if(reply.img_url !== null) {
+                    const filename = reply.img_url.split('/images/')[1];
                     deleteFile(filename,next);
                 }
+                // check if there is any replies related to the deleted reply_id
+                const query = `SELECT * FROM comments WHERE comment_id = ? AND delete_time IS ?`;
 
-                const query = `SELECT reply_id FROM comments2 WHERE comment_id = ${req.params.id}' AND delete_time IS NULL`;
-                connection.query (query, (error , results) => {
-                    if(error) return
-                    if(!results.length) return
-                    // there is replies of comment 123, we map into a new arry ['125','126']
-                    const reply_idArr = results.map(ele => ele.reply_id)
-            
-                    handler(reply_idArr,connection);
-            
+                connection.query (query, [ req.params.id, null ],(error , results, fields) => {
+                    if(error) return next(error);
+
+                    if(!results.length) return res.status(200).json({ message: 'la réponse ou commentaire supprimé'});
+
+                    deleteHandler(results,connection,next);
+
+                    res.status(200).json({ message: 'La réponse ou commentaire est supprimée'});
                 })
-
-
-                
             })
-
         })
     })
-    
 }
 
 exports.getAllComments = (req, res, next) => {
