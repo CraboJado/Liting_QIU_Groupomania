@@ -45,8 +45,10 @@ exports.modifyPost = (req, res, next) => {
         if(req.file) deleteFile (req.file.filename,next);
         return next ( new ErrorResponse('mauvaise requête', 400))
     }
-    
-    const posts_query = 'SELECT * FROM posts WHERE post_id = ? AND delete_time IS ?';
+
+    // Check if post existe or not, then compare its user_id with the one of logined user
+    const posts_query = 'SELECT user_id, img_url FROM posts WHERE id = ? AND delete_time IS ?';
+
     mysqlConnect.then( connection => {
         connection.query(posts_query ,[req.params.id, null] ,(error, results, fields) => {
             if(error) {
@@ -66,14 +68,15 @@ exports.modifyPost = (req, res, next) => {
                 return next( new ErrorResponse('requête non autorisée', 401) )
             }
 
-            // if user modify only text in his post
+            // when it comes to here, user and admin allow to modify the post.
             let update_obj = {
-                post_title : req.body.post_title,
-                post_content : req.body.post_content,
+                title : req.body.title,
+                content : req.body.content,
                 update_time : getMysqlDate()
             };
+
             // if user want to delete the image in his post
-            if(req.body.img_url === null){
+            if(req.body.isDeleteImg === true){
                 update_obj = {
                     ...update_obj,
                     img_url : null
@@ -83,22 +86,26 @@ exports.modifyPost = (req, res, next) => {
             // if user want to modify the image in his post
             if(req.file){
                 update_obj = {
-                    post_title : JSON.parse(req.body.post).post_title,
-                    post_content : JSON.parse(req.body.post).post_content,
+                    title : JSON.parse(req.body.post).title,
+                    content : JSON.parse(req.body.post).content,
                     img_url : `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
                     update_time : getMysqlDate()
                 }
             }
 
-            const update_query = 'UPDATE posts SET ? WHERE post_id = ?';
+            const update_query = 'UPDATE posts SET ? WHERE id = ?';
+
             const update_values = [ update_obj, req.params.id ];
+
             connection.query(update_query, update_values, (error, results, fields) => {
                 if(error) {
                     if(req.file) deleteFile(req.file.filename,next);
                     return next(error)
                 }
-                // if user modify the img or user want to delete the image in his post
-                if((req.file && post.img_url !== null) || (req.body.img_url === null && post.img_url !== null) ) {
+
+                // delete old img in the server 
+                // if user modify the img OR user deletes the image in his post
+                if((req.file && post.img_url !== null) || (req.body.isDeleteImg === true && post.img_url !== null) ) {
                     const filename = post.img_url.split('/images/')[1];
                     deleteFile(filename,next);
                 }
