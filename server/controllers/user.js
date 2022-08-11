@@ -16,7 +16,7 @@ exports.signup = (req,res,next) => {
         bcrypt.hash(password,10)
         .then( hash => {
             const users_query = `INSERT INTO users (id, email, password, name, department_id, job_id, isAdmin, create_time) VALUES(?,?,?,?,?,?,?,?)`;
-            
+
             const insert_values = [uuidv4(),email, hash, name, department_id, job_id, isAdmin, getMysqlDate()]; 
 
             connection.query(users_query, insert_values, (error, results, fields) => {
@@ -32,7 +32,6 @@ exports.signup = (req,res,next) => {
 exports.login = (req, res, next) => {
     const { email, password } = req.body;
 
-    // const users_query = `SELECT * FROM users WHERE email = ?`;
     const users_query = `SELECT id, isAdmin, password FROM users WHERE email = ?`;
     
     mysqlConnect.then( connection => {
