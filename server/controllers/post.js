@@ -225,8 +225,7 @@ exports.likePost = (req, res, next) => {
             if(!results.length) return next( new ErrorResponse('la publication n\'existe pas',404));
 
             // when post exists, check if user has reactions to this post ( like or dislike reactions)
-            const reactions_query = 'SELECT * FROM reactions WHERE post_id = ? AND user_id = ?';
-                                     // reaction
+            const reactions_query = 'SELECT reaction FROM reactions WHERE post_id = ? AND user_id = ?';
 
             connection.query(reactions_query,[req.params.id, req.params.userId],(error, results, fields) => {
                 if(error) return next(error);
