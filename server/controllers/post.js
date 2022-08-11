@@ -117,8 +117,11 @@ exports.modifyPost = (req, res, next) => {
 }
 
 exports.deletePost = (req, res, next) => {
+
     mysqlConnect.then( connection => {
-        const posts_query = 'SELECT * FROM posts WHERE post_id = ? AND delete_time IS ?';
+        // check if post existes or not, then compare its user_id to the logined user
+        const posts_query = 'SELECT * FROM posts WHERE id = ? AND delete_time IS ?';
+        // const posts_query = 'SELECT user_id, img_url FROM posts WHERE id = ? AND delete_time IS ?';
 
         connection.query(posts_query, [req.params.id,null], (error, results, fields) => {
             if(error) return next(error)
@@ -132,40 +135,44 @@ exports.deletePost = (req, res, next) => {
             const post = results[0];
 
             // soft delete, set delete_time and img_url to null
-            const update_query = 'UPDATE posts SET ? WHERE post_id = ?';
+            const update_query = 'UPDATE posts SET ? WHERE id = ?';
 
             const update_obj = { img_url: null, delete_time : getMysqlDate() };
 
-            connection.query(update_query, [ update_obj,req.params.id ], (error, results, fields) => {
+            connection.query(update_query, [ update_obj, req.params.id ], (error, results, fields) => {
                 if(error) return next(error)
     
-                // delete img in disk if there is
+                // delete img in server if there is one
                 if(post.img_url !== null){
                     const filename = post.img_url.split('/images/')[1];
                     deleteFile(filename,next)
                 }
                 
-                // delete also the reply-ids(in comments table) related to the deleted post(req.params.id)
-                const comments_query = 'SELECT * FROM comments WHERE post_id = ? AND delete_time IS ?'
+                // after delete the post, check if any comments and subcomments related to it in tbl replies
+                // if there is any,delete them 
+                // if not, send message to user
+                const replies_query = 'SELECT id, img_url FROM replies WHERE post_id = ? AND delete_time IS ?'
 
-                connection.query(comments_query, [ req.params.id, null ],(error, results) => {
+                connection.query(replies_query, [ req.params.id, null ],(error, results) => {
                     if(error) return next(error);
 
                     if(!results.length) return res.status(201).json({ message : 'publication supprimé' });
 
-                    const reply_ids = results.map ( ele => {
+                    // get reply ids related to the deleted post
+                    // delete img in the server for the reply with img
+                    const ids = results.map ( ele => {
                         if( ele.img_url !== null ){
                             const filename = ele.img_url.split('/images/')[1];
                             deleteFile(filename,next)
                         }
-                        return ele.reply_id
+                        return ele.id
                     })
 
-                    const update_query = `update comments set ? where reply_id IN (?)`;
+                    const update_query = `update replies set ? where id IN (?)`;
 
                     const update_obj = { img_url: null, delete_time : getMysqlDate() };
 
-                    connection.query(update_query, [ update_obj, reply_ids ], (error, results) => {
+                    connection.query(update_query, [ update_obj, ids ], (error, results) => {
                         if(error) next(error);
 
                         res.status(201).json({ message : 'publication supprimé' })
@@ -176,12 +183,15 @@ exports.deletePost = (req, res, next) => {
     })
 }
 
-exports.getAllPosts = (req, res, next) => {
-    const posts_query = 'SELECT * FROM posts WHERE delete_time IS ? ORDER BY create_time DESC LIMIT 0,20';
+exports.getPosts = (req, res, next) => {
+    const posts_query = `SELECT t.*, CAST(create_time AS CHAR) as create_timeJS FROM posts t 
+                        WHERE delete_time IS ? 
+                        ORDER BY create_time DESC 
+                        LIMIT ?,10`;
     
     mysqlConnect.then( connection => {
-        connection.query(posts_query,[ null ],(error, results,fields) => {
-            if(error) return next(error)
+        connection.query(posts_query,[ null, req.body.number ],(error, results, fields) => {
+            if(error) return next(error);
 
             res.status(201).json(results);
         })
