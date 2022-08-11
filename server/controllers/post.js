@@ -112,6 +112,7 @@ exports.modifyPost = (req, res, next) => {
 exports.deletePost = (req, res, next) => {
     mysqlConnect.then( connection => {
         const posts_query = 'SELECT * FROM posts WHERE post_id = ? AND delete_time IS ?';
+
         connection.query(posts_query, [req.params.id,null], (error, results, fields) => {
             if(error) return next(error)
             
@@ -123,13 +124,12 @@ exports.deletePost = (req, res, next) => {
 
             const post = results[0];
 
-            // soft delete, set delete_time and img_url 
-            const update_query = 'UPDATE posts SET ? WHERE post_id = ?'
-            const update_value = { 
-                    img_url: null, 
-                    delete_time : getMysqlDate() 
-                };
-            connection.query(update_query, [update_value,req.params.id], (error, results, fields) => {
+            // soft delete, set delete_time and img_url to null
+            const update_query = 'UPDATE posts SET ? WHERE post_id = ?';
+
+            const update_obj = { img_url: null, delete_time : getMysqlDate() };
+
+            connection.query(update_query, [ update_obj,req.params.id ], (error, results, fields) => {
                 if(error) return next(error)
     
                 // delete img in disk if there is
@@ -137,8 +137,33 @@ exports.deletePost = (req, res, next) => {
                     const filename = post.img_url.split('/images/')[1];
                     deleteFile(filename,next)
                 }
+                
+                // delete also the reply-ids(in comments table) related to the deleted post(req.params.id)
+                const comments_query = 'SELECT * FROM comments WHERE post_id = ? AND delete_time IS ?'
 
-                res.status(201).json({ message : 'publication supprimé' })
+                connection.query(comments_query, [ req.params.id, null ],(error, results) => {
+                    if(error) return next(error);
+
+                    if(!results.length) return res.status(201).json({ message : 'publication supprimé' });
+
+                    const reply_ids = results.map ( ele => {
+                        if( ele.img_url !== null ){
+                            const filename = ele.img_url.split('/images/')[1];
+                            deleteFile(filename,next)
+                        }
+                        return ele.reply_id
+                    })
+
+                    const update_query = `update comments set ? where reply_id IN (?)`;
+
+                    const update_obj = { img_url: null, delete_time : getMysqlDate() };
+
+                    connection.query(update_query, [ update_obj, reply_ids ], (error, results) => {
+                        if(error) next(error);
+
+                        res.status(201).json({ message : 'publication supprimé' })
+                    })
+                })
             })
         })
     })
