@@ -184,11 +184,30 @@ exports.deleteComment = (req, res, next) => {
     })
 }
 
+/*
+req.body {
+    id:
+    flag : 
+}
+*/
 exports.getAllComments = (req, res, next) => {
-    const comments_query = 'SELECT * FROM comments WHERE post_id = ? AND flag = ? AND delete_time IS ?';
+    let comments_query = `SELECT t.*, CAST(create_time AS CHAR) as create_timeJS FROM comments t 
+                        WHERE comment_id = ? AND delete_time IS ? 
+                        ORDER BY create_time DESC 
+                        LIMIT 0,3`;
 
+    let query_values = [req.body.id, null]
+
+    if(req.body.flag === 0){
+        comments_query =`SELECT t.*, CAST(create_time AS CHAR) as create_timeJS FROM comments t 
+                        WHERE post_id = ? AND comment_id IS ? AND delete_time IS ? 
+                        ORDER BY create_time DESC 
+                        LIMIT 0,3`;
+        query_values = [req.body.id, null, null]
+    }
+    
     mysqlConnect.then( connection => {
-        connection.query(comments_query,[ req.body.postId, req.body.flag, null ], (error, results, fields) => {
+        connection.query(comments_query, query_values, (error, results, fields) => {
             if(error) return next(error);
 
             res.status(200).json(results);
