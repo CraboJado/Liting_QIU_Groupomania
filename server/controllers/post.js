@@ -5,6 +5,7 @@ const uid = require('../utils/getUid');
 const deleteFile = require('../utils/deleteFile')
 
 exports.addPost = (req, res, next) => {
+    // ensure user request is valid
     const isFormData = req.get('content-type').includes('multipart/form-data');
 
     if(isFormData && (!req.body.post || !req.file)){
@@ -39,6 +40,7 @@ exports.addPost = (req, res, next) => {
 }
 
 exports.modifyPost = (req, res, next) => {
+    // ensure user request is valid
     const isFormData = req.get('content-type').includes('multipart/form-data');
 
     if(isFormData && (!req.body.post || !req.file)){
@@ -117,11 +119,9 @@ exports.modifyPost = (req, res, next) => {
 }
 
 exports.deletePost = (req, res, next) => {
-
     mysqlConnect.then( connection => {
         // check if post existes or not, then compare its user_id to the logined user
-        const posts_query = 'SELECT * FROM posts WHERE id = ? AND delete_time IS ?';
-        // const posts_query = 'SELECT user_id, img_url FROM posts WHERE id = ? AND delete_time IS ?';
+        const posts_query = 'SELECT user_id, img_url FROM posts WHERE id = ? AND delete_time IS ?';
 
         connection.query(posts_query, [req.params.id,null], (error, results, fields) => {
             if(error) return next(error)
@@ -132,9 +132,9 @@ exports.deletePost = (req, res, next) => {
                 return next( new ErrorResponse('requête non autorisée',401))
             }
 
+            // user and admin allow to delete the post
             const post = results[0];
 
-            // soft delete, set delete_time and img_url to null
             const update_query = 'UPDATE posts SET ? WHERE id = ?';
 
             const update_obj = { img_url: null, delete_time : getMysqlDate() };
@@ -148,9 +148,9 @@ exports.deletePost = (req, res, next) => {
                     deleteFile(filename,next)
                 }
                 
-                // after delete the post, check if any comments and subcomments related to it in tbl replies
-                // if there is any,delete them 
-                // if not, send message to user
+                // after delete the post, 
+                // check if any comments and subcomments related to it in tbl replies
+                // if there is any,delete them ,if not, send message to user
                 const replies_query = 'SELECT id, img_url FROM replies WHERE post_id = ? AND delete_time IS ?'
 
                 connection.query(replies_query, [ req.params.id, null ],(error, results) => {
@@ -158,14 +158,14 @@ exports.deletePost = (req, res, next) => {
 
                     if(!results.length) return res.status(201).json({ message : 'publication supprimé' });
 
-                    // get reply ids related to the deleted post
+                    // get reply ids related to the deleted post which need to delete also
                     // delete img in the server for the reply with img
                     const ids = results.map ( ele => {
                         if( ele.img_url !== null ){
                             const filename = ele.img_url.split('/images/')[1];
                             deleteFile(filename,next)
                         }
-                        return ele.id
+                        return ele.id 
                     })
 
                     const update_query = `update replies set ? where id IN (?)`;
@@ -190,7 +190,7 @@ exports.getPosts = (req, res, next) => {
                         LIMIT ?,10`;
     
     mysqlConnect.then( connection => {
-        connection.query(posts_query,[ null, req.body.number ],(error, results, fields) => {
+        connection.query(posts_query,[ null, req.body.startNbr ],(error, results, fields) => {
             if(error) return next(error);
 
             res.status(201).json(results);
@@ -198,7 +198,7 @@ exports.getPosts = (req, res, next) => {
     })
 }
 
-exports.getPost = (req, res, next) => {
+exports.getOnePost = (req, res, next) => {
     const posts_query = 'SELECT * FROM posts WHERE delete_time IS ? AND id = ?';
 
     mysqlConnect.then( connection => {
@@ -211,6 +211,7 @@ exports.getPost = (req, res, next) => {
 }
 
 exports.likePost = (req, res, next) => {
+    // ensure user request is valid
     if(!Number.isInteger(req.body.like) || req.body.like > 1 || req.body.like < -1) {
         return next( new ErrorResponse('mauvaise requête',400));
     }
@@ -230,7 +231,8 @@ exports.likePost = (req, res, next) => {
             connection.query(reactions_query,[req.params.id, req.params.userId],(error, results, fields) => {
                 if(error) return next(error);
                 
-                // if no reactions related the post, then do insert query directly for valid user request
+                // if no reactions related the post, 
+                // do insert query directly for valid user request
                 if(!results.length) {
                     if(req.body.like === 0) return next( new ErrorResponse('mauvaise requête',400));
     
@@ -247,7 +249,8 @@ exports.likePost = (req, res, next) => {
                     })
                 }
                 
-                // if user has already reactions related to the post, update tbl reactions for valid user request
+                // if user has already reactions related to the post, 
+               // do update query in tbl reactions for valid user request  
                 if((results[0].reaction !== 0 && req.body.like !== 0) || (results[0].reaction === 0 && req.body.like === 0)){
                     return next( new ErrorResponse('mauvaise requête',400))
                 }
