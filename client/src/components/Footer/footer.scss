@@ -1,0 +1,9 @@
+@use '../../style/var';
+
+.footer {
+    display: flex;
+    flex-direction: column;
+    background-color: var.$tertiaire;
+    color: #ffff;
+    text-align: center;
+}
