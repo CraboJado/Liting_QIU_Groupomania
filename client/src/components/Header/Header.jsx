@@ -8,7 +8,7 @@ export default function Header() {
     const [isShow, setIsShow] = useState(false);
 
   return (
-    <div className='header'>
+    <header className='header'>
         <img src ={"./logos/icon-left-font-monochrome-white.svg"} alt="Groupomania logo"/>
         <nav>
             <FontAwesomeIcon icon={faBars} onClick = {() => {
@@ -22,6 +22,6 @@ export default function Header() {
             </div>
             }
         </nav>
-    </div>
+    </header>
   )
 }
