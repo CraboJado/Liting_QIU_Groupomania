@@ -1,14 +1,14 @@
-.LandingCenter {
+.landingCenter {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-top: 20px;
     font-size: 12px;
     text-align: center;
     color: #4E5166;
+    padding: 0 20px 50px 20px;
 
     img {
-        width: 70%;
+        width: 100%;
     }
 
     .btn {
