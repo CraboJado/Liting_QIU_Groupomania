@@ -3,7 +3,7 @@ const app = express();
 const path = require('path');
 const userRoutes = require('./routes/user');
 const postRoutes = require('./routes/post');
-const commentRoutes = require('./routes/comments');
+const replyRoutes = require('./routes/replies');
 const errorHandler = require('./middlewares/errorHandler');
 
 
@@ -20,7 +20,7 @@ app.use('/api/auth',userRoutes);
 app.use('/api/posts',postRoutes);
 
 // comment routes
-app.use('/api/comments',commentRoutes);
+app.use('/api/replies',replyRoutes);
 
 // error handler middleware
 app.use(errorHandler);
