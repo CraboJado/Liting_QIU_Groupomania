@@ -1,26 +1,12 @@
-import React, {useState} from 'react';
-import { Link } from "react-router-dom";
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars } from '@fortawesome/free-solid-svg-icons';
+import React from 'react';
 import './header.scss'
 
-export default function Header() {
-    const [isShow, setIsShow] = useState(false);
-
+export default function Header(pros) {
   return (
     <header className='header'>
         <img src ={"./logos/icon-left-font-monochrome-white.svg"} alt="Groupomania logo"/>
-        <nav>
-            <FontAwesomeIcon icon={faBars} onClick = {() => {
-                setIsShow(!isShow)
-            }}/>
-
-            {isShow && 
-            <div>
-                <Link to = '/signup' className='btn'>signup</Link>
-                <Link to = '/login'  className='btn' >login</Link>
-            </div>
-            }
+        <nav className='headerNav'>
+            {pros.children}
         </nav>
     </header>
   )

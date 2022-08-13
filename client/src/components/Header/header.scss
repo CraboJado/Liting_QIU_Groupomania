@@ -12,11 +12,12 @@
         width: 40%;
     }
 
-    nav {
+    .headerNav {
+
         padding-right: 20px;
         position: relative;
-
-        div {
+    
+        .dropDown {
             position: absolute;
             right:5px;
             top:40px;
@@ -28,15 +29,21 @@
             border-radius: 10px;
             box-shadow: 0px 0px 8px 0px rgba(0,0,0,0.73);
             background-color: white;
-            
-
-            .btn {
-                background-color: #4E5166;
-                color: white;
-                padding: 5px 10px;
-                border-radius: 5px;
-            }
+    
+    
         }
-
+        
+        .btn {
+            background-color: #4E5166;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+    
+        >.btn {
+            background-color: white;
+            color: #4E5166;
+            font-weight: 700;
+        }
     }
 }
