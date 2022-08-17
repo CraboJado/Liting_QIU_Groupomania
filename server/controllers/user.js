@@ -6,7 +6,7 @@ const getMysqlDate = require('../utils/getMysqlDate');
 const { v4: uuidv4 } = require('uuid');
 
 exports.signup = (req,res,next) => {
-    const { email, password, name, department_id, job_id } = req.body;
+    const { email, password, name, department, position } = req.body;
     // signup a superadmin with a fixied email, 
     // this account can set other users as subAdmin with isAdmin = 1 if we need more admin accounts
     let isAdmin;
@@ -17,7 +17,7 @@ exports.signup = (req,res,next) => {
         .then( hash => {
             const users_query = `INSERT INTO users (id, email, password, name, department_id, job_id, isAdmin, create_time) VALUES(?,?,?,?,?,?,?,?)`;
 
-            const insert_values = [uuidv4(),email, hash, name, department_id, job_id, isAdmin, getMysqlDate()]; 
+            const insert_values = [uuidv4(),email, hash, name, department, position, isAdmin, getMysqlDate()]; 
 
             connection.query(users_query, insert_values, (error, results, fields) => {
                 if (error) return next(error);
