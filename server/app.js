@@ -5,11 +5,20 @@ const helmet = require('helmet');
 const userRoutes = require('./routes/user');
 const postRoutes = require('./routes/post');
 const replyRoutes = require('./routes/replies');
-const dptRoutes = require('./routes/departments')
+const dptRoutes = require('./routes/departments');
+const positionRoutes = require('./routes/positions')
 const errorHandler = require('./middlewares/errorHandler');
 
 // app helmet middleware to enforce security
 app.use(helmet());
+
+// handle cors problem
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content, Accept, Content-Type, Authorization');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+    next();
+})
 
 // body parser
 app.use(express.json());
@@ -28,6 +37,9 @@ app.use('/api/replies',replyRoutes);
 
 // departments routes
 app.use('/api/dpt', dptRoutes);
+
+// departments routes
+app.use('/api/position', positionRoutes);
 
 // error handler middleware
 app.use(errorHandler);
