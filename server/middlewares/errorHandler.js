@@ -14,10 +14,10 @@ const errorHandler = (err, req, res, next) => {
     // 
 
     if(error.errno) {
-        error = new ErrorResponse(error.sqlMessage,400);
+        error = new ErrorResponse(error.code,400);
     }
 
-    res.status(error.statusCode || 500).json({ errorInErrorHandler: error.message || "Server Error"})
+    res.status(error.statusCode || 500).json({ errorMsg: error.message || "Server Error"})
 }
 
 module.exports = errorHandler;
