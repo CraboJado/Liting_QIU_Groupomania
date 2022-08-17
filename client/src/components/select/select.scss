@@ -1,0 +1,14 @@
+
+
+.selectWrap {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+
+    select {
+        border-radius: 12px;
+        outline: none;
+        height: 28px;
+        padding:0 10px
+    }
+}
