@@ -4,7 +4,7 @@ import LandingCenter from '../../components/landingCenter/LandingCenter';
 import Footer from '../../components/footer/Footer';
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars } from '@fortawesome/free-solid-svg-icons';
+import { faBars,faXmark } from '@fortawesome/free-solid-svg-icons';
 import './landing.scss';
 
 export default function Landing() {
@@ -16,7 +16,10 @@ export default function Landing() {
   return (
     <div className='landing'>
         <Header>
-          <FontAwesomeIcon icon={faBars} onClick = {clickHandler}/>
+          {isShow ? 
+          <FontAwesomeIcon icon={faXmark} onClick = {clickHandler}/>:
+          <FontAwesomeIcon icon={faBars} onClick = {clickHandler}/> }
+          
           {isShow && 
             <div className='dropDown'>
               <Link to = '/signup' className='btn'>signup</Link>
