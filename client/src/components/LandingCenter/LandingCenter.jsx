@@ -10,9 +10,7 @@ export default function LandingCenter() {
             S'exprimez, Partagez , Rigolez ensemble
         </h2>
         <img src="./logos/icon-left-font-monochrome-black.png" alt="" />
-        <h3 className='btn'>
-            <Link to = '/signup' >Rejoignez vos collègues</Link>
-        </h3>
+        <Link to = '/signup' className='btn'>Rejoignez vos collègues</Link>
     </div>
   )
 }
