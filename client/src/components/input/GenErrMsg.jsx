@@ -1,10 +1,15 @@
 import React from 'react'
+import { useContext } from 'react'
+// import { GlobleContext } from '../form/Form';
+import { GlobleContext } from '../..'
 
 export default function GenErrMsg(props) {
-    const {msgErr} = props
+    const {state} = useContext(GlobleContext )
+    const {type} = props 
+    
   return (
     <div className='msgError'> 
-      {msgErr} 
+      {state.msgErr[type]} 
     </div>
   )
 }
