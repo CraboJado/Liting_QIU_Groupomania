@@ -4,10 +4,12 @@ import {
   Route,
 } from "react-router-dom"
 import'./app.scss';
-import Landing from './pages/Landing/Landing';
-import Signup from "./pages/Signup/Signup";
+import Landing from './pages/landing/Landing';
+import Signup from "./pages/signup/Signup";
 
-import Login from "./pages/Login/Login";
+import Login from "./pages/login/Login";
+
+
 
 function App() {
   return (
@@ -16,6 +18,7 @@ function App() {
           <Route path="/signup" element={<Signup />}></Route>
           <Route path="/login" element={<Login />}></Route>
           <Route path="/" element={<Landing />}></Route>
+          <Route path="/home" element={ <div>HOME</div>}></Route>
         </Routes>
       </BrowserRouter>
     
