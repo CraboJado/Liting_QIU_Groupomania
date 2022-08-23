@@ -1,0 +1,70 @@
+@use '../../style/_var.scss';
+
+
+
+.formWrap {
+    height: 100vh;
+    position: relative;
+
+    form {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%,-50%);
+        padding: 20px;
+        box-shadow: 0px 0px 8px 0px rgba(0,0,0,0.73);
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+
+        .inputWrap {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+
+            .userInput {
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+            
+                input {
+                    border: 1px solid var.$tertiaire;
+                    border-radius: 12px;
+                    outline: none;
+                    height:28px;
+                    padding:0 10px
+                }
+            }
+
+            .msgError {
+                background-color: #f1f1f1;
+                font-size: 12px;
+                color: red;
+                border-radius: 5px;
+                padding-left: 5px;
+            }
+        }
+
+        .btn {
+            background-color: #4E5166;
+            color: white;
+            padding: 8px 10px;
+            border-radius: 5px;
+            width: 50%;
+            align-self: center;
+            border: none;
+          
+            &:hover {
+                cursor: pointer;
+                box-shadow: 0px 0px 8px 0px rgba(0,0,0,0.53);
+            }
+        }
+    }
+}
+
+
+
+
+
+
+
