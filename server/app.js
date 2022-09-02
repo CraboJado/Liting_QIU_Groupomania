@@ -4,10 +4,11 @@ const path = require('path');
 const helmet = require('helmet');
 const userRoutes = require('./routes/user');
 const postRoutes = require('./routes/post');
-const replyRoutes = require('./routes/replies');
+const commentRoutes = require('./routes/comments')
 const dptRoutes = require('./routes/departments');
 const positionRoutes = require('./routes/positions')
 const errorHandler = require('./middlewares/errorHandler');
+
 
 // app helmet middleware to enforce security
 app.use(helmet());
@@ -33,7 +34,7 @@ app.use('/api/auth',userRoutes);
 app.use('/api/posts',postRoutes);
 
 // comment routes
-app.use('/api/replies',replyRoutes);
+app.use('/api/comments',commentRoutes);
 
 // departments routes
 app.use('/api/dpt', dptRoutes);
