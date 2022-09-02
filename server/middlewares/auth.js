@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const ErrorResponse = require('../utils/errorResponse');
+const { ErrorResponse } = require('../utils/utils');
 
 const auth = (req, res, next) => {
     console.log('in auth controller');
@@ -14,12 +14,8 @@ const auth = (req, res, next) => {
     
     const decodedToken = jwt.verify(token,process.env.TOKEN_KEY);
     const { data: userId, isAdmin } = decodedToken;
-    req.auth = { isAdmin };
+    req.auth = { isAdmin , userId };
 
-    if( userId !== req.params.userId ){
-       return next( new ErrorResponse('non autorisée, identifiants invalides',401))
-    }
-    
     next();
 } 
 
