@@ -5,16 +5,17 @@ const {addPost, modifyPost, deletePost, getPosts, getOnePost , likePost} = requi
 
 const router = express.Router();
 
-router.get('/:userId', auth, getPosts)
+// pas besoin userId pour tous
+router.get('/', auth, getPosts) 
 
-router.get('/:id/:userId', auth, getOnePost)
+router.get('/:id', auth, getOnePost)
 
-router.post('/:userId', auth, multer, addPost)
+router.post('/', auth, multer, addPost)
 
-router.put('/:id/:userId',auth, multer, modifyPost)
+router.put('/:id',auth, multer, modifyPost)
 
-router.delete('/:id/:userId',auth, deletePost)
+router.delete('/:id',auth, deletePost)
 
-router.post('/:id/:userId/like',auth,likePost)
+router.post('/:id/like',auth,likePost)
 
 module.exports = router;
