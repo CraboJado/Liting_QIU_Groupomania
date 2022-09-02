@@ -1,18 +1,18 @@
 const mysqlConnect = require('../config/db');
 const bcrypt = require ('bcrypt');
 const jwt = require('jsonwebtoken');
-const ErrorResponse = require('../utils/errorResponse');
-const getMysqlDate = require('../utils/getMysqlDate');
 const { v4: uuidv4 } = require('uuid');
+const { ErrorResponse, getMysqlDate } = require('../utils/utils');
 
 exports.signup = (req,res,next) => {
     const { email, password, name, department, position } = req.body;
-    // signup a superadmin with a fixied email, 
-    // this account can set other users as subAdmin with isAdmin = 1 if we need more admin accounts
+    // sign up a super admin with an environment variable (fixed email),
+    // this account can set other users as subAdmin with isAdmin = 1 if need more admin accounts
     let isAdmin;
     email === process.env.SUPERADMIN ? isAdmin = 2 : isAdmin = 0;
     
     mysqlConnect.then( connection => {
+        // hash user password
         bcrypt.hash(password,10)
         .then( hash => {
             const users_query = `INSERT INTO users (id, email, password, name, department_id, job_id, isAdmin, create_time) VALUES(?,?,?,?,?,?,?,?)`;
@@ -40,17 +40,19 @@ exports.login = (req, res, next) => {
     
             if(!results.length) return next( new ErrorResponse('utilisateur n\'existe pas', 404) );
 
+            // verify password
             bcrypt.compare(password,results[0].password)
             .then( valid => {
                 if(!valid) return next( new ErrorResponse('non autorisée, mot de pass incorrect', 401) );
 
-                // if user logined is admin send token with isAdmin : true
+                // generate token with userId and isAdmin
                 const token = results[0].isAdmin ? 
                 jwt.sign({ data: results[0].id, isAdmin:true }, process.env.TOKEN_KEY, { expiresIn: process.env.TOKEN_EXPIRE })
                 :
                 jwt.sign({ data: results[0].id, isAdmin:false }, process.env.TOKEN_KEY, { expiresIn: process.env.TOKEN_EXPIRE });
 
-                res.status(200).json({ userId:results[0].id, token })
+                // logined sucessfully , send token and isAdmin to front
+                res.status(200).json({ isAdmin:results[0].isAdmin, token })
             })
             .catch( error => next(error) )
         })
