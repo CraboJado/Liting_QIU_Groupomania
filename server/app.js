@@ -11,7 +11,10 @@ const errorHandler = require('./middlewares/errorHandler');
 
 
 // app helmet middleware to enforce security
-app.use(helmet());
+app.use(helmet({
+    crossOriginResourcePolicy: false,
+  })
+);
 
 // handle cors problem
 app.use((req, res, next) => {
