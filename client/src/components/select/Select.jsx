@@ -5,23 +5,27 @@ import axios from 'axios';
 import './select.scss';
 
 export default function Select(props) {
-    const { name } = props
+    const { name , text} = props;
+
     const [list,setList] = useState([]);
+    
     const {dispatch} = useContext(GlobleContext);
    
-
     const url = name === 'department' ? 
     'http://localhost:5000/api/dpt/' : 
     'http://localhost:5000/api/position/'
 
     useEffect(()=> {
       axios.get(url)
-      .then( (res) => {
+      .then( res => {
         setList(res.data);
+      })
+      .catch( err => {
+        console.log(err)
       })
     },[url]);
 
-    const handleChange = (e) => {
+    const handleChange = e => {
       dispatch({
         type:'getSeletedItem',
         value:e.target.value,
@@ -30,11 +34,11 @@ export default function Select(props) {
     }
 
   return (
-    <div className='selectWrap'>
-      <label htmlFor = {`${name}-select`} >Choose a {name}:</label>
+    <div className='form__select-menu '>
+      <label htmlFor = {`${name}-select`} >Choisissez un {text}:</label>
 
       <select name= {name} id= {`${name}-select`} onChange={handleChange}>
-          <option value="">--Please choose an option--</option>
+          <option value="">--Veuillez choisir une option--</option>
           {list.map( ele => <option key= {ele.id} value= {ele.id}> {ele.name || ele.position}</option> )}
       </select>
   </div>
