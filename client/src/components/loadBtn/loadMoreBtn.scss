@@ -1,0 +1,15 @@
+@use '../../style/var';
+
+.load-more {
+    font-size: 12px;
+    align-self:flex-start;
+
+    &__btn{
+        cursor: pointer;
+        background-color: var.$tertiaire;
+        border: none;
+        padding:2px 4px;
+        border-radius: 5px;
+        color:white;
+    }
+}
