@@ -1,0 +1,109 @@
+@use '../../style/var';
+
+.home {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background-color: rgba(240,240,240);
+
+    // header
+    .header {
+        gap: 60px;
+
+        &__avatarWrap {
+            display: flex;
+            align-items: center;
+            justify-content: space-evenly;
+            padding:2px 6px;
+            border: 1px solid white;
+            border-radius: 5px;
+            gap: 8px;
+            margin-right:14px;
+    
+            .fa-chevron-down,
+            .fa-chevron-up {
+                font-size: 12px;
+                cursor: pointer;
+            }
+        }
+
+        &__avatar {
+            border-radius: 50%;
+            width: 26px;
+            height: 26px;
+            object-fit: cover;
+        }
+
+        .nav {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0px 0px 8px 0px rgba(0,0,0,0.73);
+            text-align: center;
+            background-color: white;
+            color: var.$tertiaire;
+            font-size: 12px;
+            position: absolute;
+            right:10px;
+            top:53px;
+
+            &__item {
+                width: 100%;
+                border-bottom: 1px solid var.$tertiaire;
+                padding-bottom: 5px;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+    
+                .userProfil {
+                    display: flex;
+                    flex-direction: column;
+                    color: var.$tertiaire;
+                }
+            }
+    
+            &__item--admin {
+                @extend .nav__item;
+            }
+    
+            &__link {
+                color: var.$tertiaire;   
+            }
+    
+            &__item--logout {
+                @extend .nav__item;
+                gap: 5px;
+                cursor: pointer;            
+            }
+        }
+    }
+
+    // main home center
+    .main {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        padding: 0px 10px;
+    }
+
+    .overlay {
+        position: fixed; /* Sit on top of the page content */
+        width: 100%; /* Full width (cover the whole page) */
+        height: 100vh; /* Full height (cover the whole page) */
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0,0,0,0.5); /* Black background with opacity */
+        z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
+      }
+
+
+}
+
+
+
