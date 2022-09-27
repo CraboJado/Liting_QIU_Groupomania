@@ -1,28 +1,40 @@
 @use '../../style/_var.scss';
 
-
-
-.formWrap {
-    height: 100vh;
+// .loginFormWrap,
+.form-wrap {
+    height: calc(100vh - 108px);
     position: relative;
 
-    form {
+    // form,
+    .form {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 0px 8px 0px rgba(0,0,0,0.73);
         position: absolute;
         top: 50%;
         left: 50%;
         transform: translate(-50%,-50%);
-        padding: 20px;
-        box-shadow: 0px 0px 8px 0px rgba(0,0,0,0.73);
-        display: flex;
-        flex-direction: column;
-        gap: 30px;
 
-        .inputWrap {
+        &__input {
             display: flex;
             flex-direction: column;
             gap: 10px;
 
-            .userInput {
+            .email {
+                display: flex;
+                flex-direction: column;
+                gap: 5px;   
+            }
+
+            .password {
+                @extend .email;
+            }
+
+            // LoginForm Input comopent
+            .user-input{
                 display: flex;
                 flex-direction: column;
                 gap: 5px;
@@ -32,20 +44,22 @@
                     border-radius: 12px;
                     outline: none;
                     height:28px;
-                    padding:0 10px
+                    padding:0 10px;
+                    font-size: 12px;
                 }
             }
 
-            .msgError {
+            // LoginForm ErrMsg comopent
+            .error-msg {
                 background-color: #f1f1f1;
                 font-size: 12px;
                 color: red;
                 border-radius: 5px;
-                padding-left: 5px;
+                padding:2px 4px;
             }
         }
 
-        .btn {
+        &__submit-btn {
             background-color: #4E5166;
             color: white;
             padding: 8px 10px;
@@ -53,9 +67,9 @@
             width: 50%;
             align-self: center;
             border: none;
-          
+            cursor: pointer; 
+               
             &:hover {
-                cursor: pointer;
                 box-shadow: 0px 0px 8px 0px rgba(0,0,0,0.53);
             }
         }
