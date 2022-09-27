@@ -6,6 +6,8 @@
     text-align: center;
     color: #4E5166;
     padding: 0 20px 50px 20px;
+    height: calc(100vh - 136px);
+    justify-content: space-around;
 
     img {
         width: 100%;
@@ -15,8 +17,12 @@
         font-size: 14px;
         padding: 20px;
         border-radius: 10px;
-        box-shadow: 0px 0px 8px 0px rgba(0,0,0,0.73);
+
         color: white;
-        background-color: #4E5166
+        background-color: #4E5166;
+
+        &:hover{
+            box-shadow: 0px 0px 8px 0px rgba(0,0,0,0.73);
+        }
     }
 }
