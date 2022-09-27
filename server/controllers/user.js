@@ -30,9 +30,10 @@ exports.signup = (req,res,next) => {
 }
 
 exports.login = (req, res, next) => {
+
     const { email, password } = req.body;
 
-    const users_query = `SELECT id, isAdmin, password FROM users WHERE email = ?`;
+    const users_query = `SELECT id, isAdmin, password, name, avatar, department_id, job_id FROM users WHERE email = ?`;
     
     mysqlConnect.then( connection => {
         connection.query(users_query, [email], (error, results, fields) => {
@@ -51,8 +52,17 @@ exports.login = (req, res, next) => {
                 :
                 jwt.sign({ data: results[0].id, isAdmin:false }, process.env.TOKEN_KEY, { expiresIn: process.env.TOKEN_EXPIRE });
 
-                // logined sucessfully , send token and isAdmin to front
-                res.status(200).json({ isAdmin:results[0].isAdmin, token })
+                const user = { userId: results[0].id,
+                               isAdmin:results[0].isAdmin,
+                               name : results[0].name,
+                               avatar : results[0].avatar,
+                               departmentId : results[0].department_id,
+                               jobId : results[0].job_id,
+                               token 
+                 }
+
+                // logined sucessfully , send token , userId and isAdmin to front
+                res.status(200).json(user)
             })
             .catch( error => next(error) )
         })
