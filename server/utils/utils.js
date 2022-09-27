@@ -31,8 +31,8 @@ const deleteHandler = (results, connection, next) => {
     // the ids need to delete
     const ids = results.map( ele => {
         if(ele.img_url !== null){
-            const filename = ele.img_url.split('/images/')[1];
-            deleteFile(filename,next)
+            // const filename = ele.img_url.split('/images/')[1]; 
+            deleteFile(ele.img_url,next)
         }
         return ele.id
     });
