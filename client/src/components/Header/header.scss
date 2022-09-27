@@ -1,3 +1,5 @@
+@use '../../style/var.scss';
+
 .header {
     width: 100%;
     display: flex;
@@ -6,44 +8,66 @@
     height: 50px;
     font-size: 20px;
     color: white;
-    background-color:#4E5166;
+    background-color:var.$tertiaire;
 
-    img {
-        width: 40%;
+    &__logo{
+        width: 200px;
     }
 
-    .headerNav {
+    &__img{
+        width: 100%;
+    }
 
+    // landing page
+    &__nav {
         padding-right: 20px;
         position: relative;
-    
-        .dropDown {
-            position: absolute;
-            right:5px;
-            top:40px;
-            display: flex;
-            flex-direction: column;
-            gap:20px;
-            // border: 1px solid #4E5166;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 0px 8px 0px rgba(0,0,0,0.73);
-            background-color: white;
-    
-    
-        }
         
-        .btn {
-            background-color: #4E5166;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 5px;
-        }
-    
-        >.btn {
-            background-color: white;
-            color: #4E5166;
-            font-weight: 700;
+        .fa-bars,
+        .fa-xmark {
+            cursor: pointer;
+            font-size: 24px;
         }
     }
+
+    &__dropDown {
+        position: absolute;
+        right:5px;
+        top:40px;
+        display: flex;
+        flex-direction: column;
+        gap:20px;
+        padding: 20px 10px;
+        border-radius: 10px;
+        box-shadow: 0px 0px 8px 0px rgba(0,0,0,0.73);
+        background-color: white;
+    }
+
+    &__button {
+        text-align: center;
+        border-radius: 5px;
+        padding: 5px 10px;
+        font-size: 16px;
+    }
+
+    &__button--dark {
+        @extend .header__button;
+        background-color: var.$tertiaire;
+        color: white;
+    }
+
+    // sigup and login page
+    &__linkWrap {
+        padding:10px;
+        font-size: 16px;
+    }
+
+    &__link {
+        background-color: white;
+        color: var.$tertiaire;
+        font-weight: 700;
+        padding: 5px 10px;
+        border-radius: 5px;
+    }
 }
+
