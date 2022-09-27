@@ -2,24 +2,51 @@ const mysqlConnect = require('../config/db');
 const { ErrorResponse, getMysqlDate, uid, deleteFile, deleteHandler } = require('../utils/utils');
 
 
-exports.getComments =(req, res, next)=> {
-    const comments_query = `SELECT t.*, CAST(create_time AS CHAR) as create_timeJS FROM comments t 
-                        WHERE target_id = ? AND delete_time IS ? 
-                        ORDER BY create_time DESC 
-                        LIMIT 3 OFFSET ?`; 
+exports.getComments =(req, res, next)=> {   
+    let comments_query = `SELECT c.id, c.user_id, c.target_id, c.content, c.img_url, CAST(c.create_time AS CHAR) create_time, 
+                users.name, users.avatar, 
+                positions.position
+                FROM comments c JOIN users 
+                ON c.user_id = users.id
+                JOIN positions
+                ON users.job_id = positions.id
+                WHERE c.target_id = ? AND c.delete_time IS ?
+                ORDER BY c.create_time DESC 
+                LIMIT ? OFFSET 0
+                `;
+    let query_values = [req.query.targetId, null, + req.query.count];
 
-    const query_values = [req.body.targetId, null, req.body.offsetNumber]
+    // 
+    if(!req.query.count){
+        comments_query = `SELECT COUNT(*) AS total
+                         FROM comments
+                         WHERE target_id = ?
+                        `;
+        query_values = [req.query.targetId];
+    }
+
 
     mysqlConnect.then( connection => {
         connection.query(comments_query, query_values, (error, results, fields) => {
             if(error) return next(error);
 
-            res.status(200).json(results);
+            if(!req.query.count){
+                res.status(200).json(results);
+                
+            }else{
+                const commentArr = results.map( comment => {
+                    if(comment.img_url !== null ) return {...comment, img_url :`${req.protocol}://${req.get('host')}/images/${comment.img_url}`}
+                    return {...comment}
+                })
+                res.status(200).json(commentArr);
+            }
+
         })
     })   
 }
 
 exports.addComment =(req, res, next)=> {
+
     // ensure user request format is valid
     if(!req.file && req.body.comment ){
         return next( new ErrorResponse('mauvaise requête555', 400) )
@@ -30,32 +57,34 @@ exports.addComment =(req, res, next)=> {
         return next( new ErrorResponse('mauvaise requête', 400) )
     }
 
+    //  when user publish comment with only text
+    let { content, targetId } = req.body;
+    let comments_query = 'INSERT INTO comments (id, user_id, target_id, content, create_time) VALUES (?, ?, ?, ?, ?)';
+    let insert_values = [uid(), req.auth.userId, targetId, content, getMysqlDate() ];
+
+    //  when user publish comment with image
+    if(req.file){
+        content = JSON.parse(req.body.comment).content;
+        targetId = JSON.parse(req.body.comment).targetId
+        // const img_url = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
+        const img_url = req.file.filename;
+        comments_query = 'INSERT INTO comments (id, user_id, target_id, content, img_url, create_time) VALUES (?, ?, ?, ?, ?, ?)';
+        insert_values = [uid(), req.auth.userId, targetId, content, img_url, getMysqlDate() ];
+    }
+
     mysqlConnect.then( connection => {
         // check if targetId existes or not
         const selectQry = `SELECT id FROM posts WHERE id = ? AND delete_time IS ?; 
                         SELECT id FROM comments WHERE id = ? AND delete_time IS ?`;
 
-        connection.query(selectQry, [req.body.targetId, null, req.body.targetId, null] , (error, results, fields) => {
+        connection.query(selectQry, [targetId, null, targetId, null] , (error, results, fields) => {
             if (error) next(error);
 
             if(!results[0].length && !results[1].length){
                 return next( new ErrorResponse('le target n\'existe pas', 404) )
             }
 
-            //  when user publish only text
-            let { content, targetId } = req.body;
-            let comments_query = 'INSERT INTO comments (id, user_id, target_id, content, create_time) VALUES (?, ?, ?, ?, ?)';
-            let insert_values = [uid(), req.auth.userId, targetId, content, getMysqlDate() ];
-
-            // when user publish with a photo, need to parse the datas
-            if(req.file){
-                content = JSON.parse(req.body.comment).content;
-                targetId = JSON.parse(req.body.comment).targetId;
-                const img_url = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
-                comments_query = 'INSERT INTO comments (id, user_id, target_id, content, img_url, create_time) VALUES (?, ?, ?, ?, ?, ?)';
-                insert_values = [uid(), req.auth.userId, targetId, content, img_url, getMysqlDate() ];
-            }            
-            
+            // add comment to target feed
             connection.query(comments_query, insert_values, (error, results, fields) =>{
                 if(error){
                     if(req.file) deleteFile(req.file.filename,next);
@@ -66,6 +95,7 @@ exports.addComment =(req, res, next)=> {
         })
     })
 }
+
 
 exports.modifyComment =(req, res, next)=> {
     // ensure user request format is valid
