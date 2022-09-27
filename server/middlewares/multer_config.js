@@ -26,6 +26,6 @@ const fileFilter = (req, file, callback) => {
     }
 }
 
-const upload = multer({ storage , fileFilter})
+const upload = multer({ storage , fileFilter, limits:{fieldSize: 25 * 1024 * 1024} })
 
 module.exports = upload.single('image');
