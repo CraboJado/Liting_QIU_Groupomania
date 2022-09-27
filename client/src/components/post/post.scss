@@ -1,0 +1,254 @@
+@use '../../style/var';
+
+.post {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    padding: 6px 10px;
+
+    // post header
+    &__header {
+        display: flex;
+        width: 100%;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 12px;
+        border-bottom: 1px solid var.$borderColor;
+        padding:6px 0;
+        position: relative;
+        
+        // à supprimer
+        .user {
+            flex:8;
+            display: flex;
+            gap: 5px;
+            align-items: center;
+
+            .user__avatarList {
+                display: flex;
+                align-items: center;
+                
+                &__item {
+                    margin-right: -12px;  
+                    .avatarImg {
+                        width: 28px;
+                        height: 28px;
+                        border-radius: 50%;
+                        object-fit: cover;
+                    }
+                }
+            }
+
+            .user__nameList {
+                padding-left: 10px;
+                display: flex;
+                gap: 3px;
+            }
+        }
+
+        .ellipsis {
+            display: flex;
+            justify-content: flex-end;
+            flex:1;
+
+            &__icon {
+                border:none;
+                font-size: 18px;
+                background-color: white;
+                color:rgba(0,0,0,0.45);
+                width: 24px;
+                height: 24px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 50%;
+                cursor: pointer;
+    
+                &:hover {
+                    background-color: rgba(0,0,0,0.12);
+                }
+            }
+
+            &__dropdown {
+                position: absolute;
+                right: 0;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                background-color: white;
+                padding: 10px;
+                top: 43px;
+                box-shadow: 0px 0px 8px 0px rgba(0,0,0,0.73);
+                border-radius: 10px;
+                
+                button {
+                    font-size: 12px;
+                    border: none;
+                    border-radius: 5px;
+                    padding: 2px 4px;
+                    cursor: pointer;
+                }
+            }
+        }
+    }
+
+    // post content 
+    &__content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        gap:10px;
+
+        .content-header{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            font-size: 12px;
+            border-bottom: 1px solid var.$borderColor;
+
+            .author {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+                padding:6px 0;
+    
+                .avatarImg {
+                    width: 28px;
+                    height:28px;
+                    border-radius: 50%;
+                    object-fit: cover;
+                }
+    
+                .author__identity{
+                    display: flex;
+                    flex-direction: column;  
+                    
+                    .name{
+                        font-weight: 700;
+                        font-size: 14px;                    
+                    }
+    
+                    .position {
+                        color:grey                   
+                    }
+                }
+            }
+
+            .pulished-time {
+                align-self: start;
+            }
+        }
+
+        .content-area {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            
+            .text {
+                position: relative;
+                font-size: 14px;
+
+                &__title{
+                    font-size: 14px;
+                    font-weight: 700;
+                }
+
+                &__content{
+                    word-break: break-word;
+                    position: relative;
+
+                    .reduce-btn,
+                    .showmore-btn {
+                        border: none;
+                        background-color: white;
+                        cursor: pointer;
+                        color: rgb(0, 179, 255); 
+                        font-style: italic;                       
+                    }
+                }
+            }
+
+            .imgWrap {
+                border-bottom: 1px solid var.$borderColor;
+                padding-bottom: 10px;
+                display: flex;
+                // height: 300px;
+
+                img,
+                .img {
+                    width: 100%;
+                    object-fit: cover;
+                }
+            }
+        }
+    }
+
+    // post reactions
+    &__reactions {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        width: 100%;
+
+        .total {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 30px 10px 30px;
+            border-bottom: 1px solid var.$borderColor;
+
+            &__like{
+                display: flex;
+                gap: 5px;
+                align-items: center;
+                font-size: 12px;
+                cursor: pointer;
+
+                &:hover {
+                    color:rgb(0, 179, 255)
+                }
+            }
+
+            &__comment{
+                @extend .total__like;
+            }
+
+        }
+
+        .reaction-btn{
+            @extend .total;
+            padding:0 20px 10px 20px;
+            border-bottom: none;
+
+            &__like {
+                display: flex;
+                gap: 5px;
+                align-items: center;
+                font-size: 12px;
+                cursor: pointer;
+                justify-content: center;
+                border: none;
+                padding: 3px 10px;
+                border-radius: 10px;
+
+                &:hover {
+                    color:rgb(0, 179, 255)
+                }
+            }
+
+            &__like--highlight {
+                @extend .reaction-btn__like;
+                color:#34DDE2;
+            }
+
+            &__comment {
+                @extend .reaction-btn__like;
+            }
+
+        }
+    }
+    
+}
