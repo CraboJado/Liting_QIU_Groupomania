@@ -52,7 +52,6 @@ const reducer = (prevState, action) => {
             }
 
         case 'setPostDatas' :
-            console.log('setPostDatas')
             return {
                 ...prevState,
                 postDatas:{ ...action.postDatas }              
