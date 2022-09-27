@@ -2,8 +2,6 @@ const jwt = require('jsonwebtoken');
 const { ErrorResponse } = require('../utils/utils');
 
 const auth = (req, res, next) => {
-    console.log('in auth controller');
-
     let token
 
     if(req.headers.authorization && req.headers.authorization.startsWith('Bearer')){

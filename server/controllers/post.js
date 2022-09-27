@@ -3,8 +3,6 @@ const { ErrorResponse, getMysqlDate, uid, deleteFile, deleteHandler } = require(
 
 
 exports.addPost = (req, res, next) => {
-    console.log('in add post controller')
-
     // ensure user request format is valid
     if(!req.file && req.body.post ){
         return next( new ErrorResponse('mauvaise requête555', 400) )
@@ -44,7 +42,6 @@ exports.addPost = (req, res, next) => {
 }
 
 exports.modifyPost = (req, res, next) => {
-    console.log(req.file)
     // ensure user request is valid
     if(!req.file && req.body.post ){
         return next( new ErrorResponse('mauvaise requête', 400) )
@@ -88,7 +85,6 @@ exports.modifyPost = (req, res, next) => {
             // user modify post with only text, 
             // need to update img_url filed to cover the case when user delete the image in his post
             if(req.body.fileUrl === "" ){
-                console.log('delete photo')
                 update_obj = {
                     ...update_obj,
                     img_url : null

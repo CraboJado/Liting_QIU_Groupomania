@@ -60,7 +60,6 @@ const deleteHandler = (results, connection, next) => {
 // delete the file uploaded in server for the request with file when there is error
 const deleteFile = (filename,next) => {
     const filePath = path.join(__dirname,`../public/images/${filename}`);
-    console.log('filePath',filePath)
     fs.unlink(filePath, err => {
         if(err){
             return next(err)
