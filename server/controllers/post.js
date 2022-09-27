@@ -3,6 +3,8 @@ const { ErrorResponse, getMysqlDate, uid, deleteFile, deleteHandler } = require(
 
 
 exports.addPost = (req, res, next) => {
+    console.log('in add post controller')
+
     // ensure user request format is valid
     if(!req.file && req.body.post ){
         return next( new ErrorResponse('mauvaise requête555', 400) )
@@ -20,7 +22,9 @@ exports.addPost = (req, res, next) => {
 
     // user publish with file 
     if(req.file) {
-        const img_url = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
+        // const file = req.file.filename remplacer imh_url
+        // const img_url = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
+        const img_url = req.file.filename;
         title = JSON.parse(req.body.post).title;
         content = JSON.parse(req.body.post).content;
         posts_query = 'INSERT INTO posts (id, user_id, title, content, img_url, create_time) VALUES (?, ?, ?, ?, ?, ?)';
@@ -40,6 +44,7 @@ exports.addPost = (req, res, next) => {
 }
 
 exports.modifyPost = (req, res, next) => {
+    console.log(req.file)
     // ensure user request is valid
     if(!req.file && req.body.post ){
         return next( new ErrorResponse('mauvaise requête', 400) )
@@ -73,28 +78,29 @@ exports.modifyPost = (req, res, next) => {
             }
 
         // From here, user and admin allow to modify the post.
-            // user modify post without file, there is no image in the post
+            // user modify post with only text , but there is image in the post, only update the title and content filed
             let update_obj = {
                 title : req.body.title,
                 content : req.body.content,
                 update_time : getMysqlDate()
             };
 
-            // user modify post without file, but there is image in the post
-            if(!req.file && post.img_url !== null){
+            // user modify post with only text, 
+            // need to update img_url filed to cover the case when user delete the image in his post
+            if(req.body.fileUrl === "" ){
+                console.log('delete photo')
                 update_obj = {
                     ...update_obj,
                     img_url : null
                 }
             }
 
-            // user modify the post with file
+            // user modify the post with text and file
             if(req.file){
-                console.log('BBB')
                 update_obj = {
                     title : JSON.parse(req.body.post).title,
                     content : JSON.parse(req.body.post).content,
-                    img_url : `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
+                    img_url :req.file.filename,
                     update_time : getMysqlDate()
                 }
             }
@@ -110,9 +116,8 @@ exports.modifyPost = (req, res, next) => {
                 }
 
                 // if the post has an image before modification,need to delete the old image in the server
-                if(post.img_url !== null) {
-                    const filename = post.img_url.split('/images/')[1];
-                    deleteFile(filename,next);
+                if(req.body.fileUrl ==="" && post.img_url !== null) {
+                    deleteFile(post.img_url,next);
                 }
     
                 res.status(201).json({ message : 'publication modifié' })
@@ -146,9 +151,8 @@ exports.deletePost = (req, res, next) => {
                 if(error) return next(error)
     
                 // delete img in server if there is one
-                if(post.img_url !== null){
-                    const filename = post.img_url.split('/images/')[1];
-                    deleteFile(filename,next)
+                if(post.img_url !== null){ 
+                    deleteFile(post.img_url,next);
                 }
                 
                 // after delete the post, 
@@ -173,16 +177,28 @@ exports.deletePost = (req, res, next) => {
 }
 
 exports.getPosts = (req, res, next) => {
-    const posts_query = `SELECT t.*, CAST(create_time AS CHAR) as create_timeJS FROM posts t 
-                        WHERE delete_time IS ? 
-                        ORDER BY create_time DESC 
-                        LIMIT 10 OFFSET ?`;
-    
-    mysqlConnect.then( connection => {
-        connection.query(posts_query,[ null, req.body.offsetNumber ],(error, results, fields) => {
-            if(error) return next(error);
+    const posts_query = `SELECT 
+                        p.id, p.user_id, p.title, p.content, p.img_url, p.create_time, 
+                        users.name, users.avatar, 
+                        positions.position
+                        FROM posts p JOIN users 
+                        ON p.user_id = users.id
+                        JOIN positions 
+                        ON users.job_id = positions.id
+                        WHERE p.delete_time IS ? 
+                        ORDER BY p.create_time DESC 
+                        LIMIT ? OFFSET 0
+                        `;
 
-            res.status(201).json(results);
+    mysqlConnect.then( connection => {
+        connection.query(posts_query,[ null, + req.query.count ],(error, results, fields) => {
+            if(error) return next(error);
+            
+            const postArr = results.map( post => {
+                if(post.img_url !==null ) return {...post, img_url :`${req.protocol}://${req.get('host')}/images/${post.img_url}`}
+                return {...post}
+            })
+            res.status(200).json(postArr);
         })
     })
 }
@@ -194,7 +210,7 @@ exports.getOnePost = (req, res, next) => {
         connection.query(posts_query,[ null, req.params.id ],(error, results, fields) => {
             if(error) return next(error)
 
-            res.status(201).json(results);
+            res.status(200).json(results);
         })
     })
 }
@@ -260,6 +276,19 @@ exports.likePost = (req, res, next) => {
             })
         })
     })
+}
+
+exports.getLikedPosts = (req, res, next) => {
+    mysqlConnect.then( connection => {
+        const reactions_query = 'SELECT user_id FROM reactions WHERE reaction = ? AND target_id = ?'
+        
+        connection.query(reactions_query,[1,req.params.id], (error, results, fields) =>{
+            if(error) return next(error);
+            res.status(200).json(results);
+
+        })
+    })
+
 }
 
 
