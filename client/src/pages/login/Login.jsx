@@ -7,9 +7,11 @@ import { Link } from "react-router-dom";
 
 export default function Login() {
   return (
-    <div>
+    <div className='login'>
       <Header>
-        <Link to = '/signup'  className='btn' >signup</Link>
+        <div className='linkWrap header__linkWrap'>
+          <Link to = '/signup'  className='link header__link' >S'inscrire</Link>
+        </div>
       </Header>
       <LoginForm/>
       <Footer/>
