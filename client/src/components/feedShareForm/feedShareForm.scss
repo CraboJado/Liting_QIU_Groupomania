@@ -1,0 +1,171 @@
+@use '../../style/var';
+
+.publish-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    background-color: white;
+    padding:10px 5px 20px 5px;
+    border-radius: 8px;
+    width: 90%;
+    max-height: 500px;
+    overflow: auto;
+    
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    -ms-transform: translate(-50%,-50%);
+
+    &__header {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+
+        .title-wrap{
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding:10px 20px;
+            border-bottom: 1px solid var.$borderColor;
+            
+            h1 {
+                flex: 1;
+                text-align: center;
+                font-size: 18px;                
+            }
+
+            .fa-x {
+                align-self: start;
+                font-size: 12px;
+                padding:5px 6px;
+                border: 1px solid var.$bcgColor;
+                cursor: pointer;
+                border-radius: 5px;
+    
+                &:hover {
+                    box-shadow: 0px 0px 8px 0px rgba(0,0,0,0.3);
+                }
+            }
+        }
+
+        .author {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            
+            &__img {
+                width: 38px;
+                height: 38px;
+                object-fit: cover;
+                border-radius: 50%;                
+            }
+        }
+    }
+
+    &__editor{
+        display: flex;
+        flex-direction: column;
+        gap:50px;
+        padding: 0 10px;
+
+        .editor {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+
+            &__title{
+                display: flex;
+                flex-direction: column;
+                gap: 5px;   
+                
+            }
+
+            &__input {
+                border: solid 2px var.$borderColor;
+                border-radius: 5px;
+                padding:5px;
+                outline: none;
+            }
+
+            &__text {
+                @extend .editor__title;
+
+                .text {
+                    border: solid 2px var.$borderColor;
+                    padding: 5px;
+                    min-height: 100px;
+                    // max-height: 100px;
+                    overflow: auto;
+                    outline: none;
+                    border-radius: 8px;
+                }
+            }
+
+            &__file{
+                @extend .editor__title;    
+                .upload {
+                   display: flex;
+                   gap: 10px;
+                   align-items: center;
+                   cursor: pointer;
+    
+                   .fa-image {
+                    font-size: 24px;
+                   }
+
+                   #inputFilePost,
+                   &__input {
+                       display: none;
+                   }
+                }
+    
+                .img-preview {
+                    display: flex;
+
+                    .img-preview-wrap {
+                        width: 50%;
+                        height: 200px;
+                        display: flex;
+                        position: relative;
+                        border: 2px solid rgb(227, 220, 220);
+                        border-radius: 12px;
+
+                        img {
+                            width: 100%;
+                            object-fit: contain;
+                        }
+
+                        .close-btn {
+                            position: absolute;
+                            right: 0px;
+                            border: none;
+                            outline: none;
+                            font-size: 12px;
+                            cursor: pointer;
+                            padding:3px 4px;
+                            border-radius: 0 7px 0 0;
+                            background-color:rgb(227, 220, 220) ;
+                        }
+                    }
+                }
+            }
+        }
+
+        .submit-btn {
+            font-size: 18px;
+            align-self: center;
+            padding:5px 10px;
+            border-radius: 5px;
+            border:none;
+            outline: none;
+            cursor: pointer;
+            width: 50%;
+
+            &:hover {
+                box-shadow: 0px 0px 8px 0px rgba(0,0,0,0.3);
+            }
+        }
+
+    }
+}
