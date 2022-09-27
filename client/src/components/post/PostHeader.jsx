@@ -30,11 +30,6 @@ export default function PostHeader(props) {
                             [post.id]:!state.ellipsisDropDown[post.id]  
                               }
         })
-        // or this way ?
-        // dispatch({
-        //     type:'toggleEllipsisDropDown',
-        //     ellipsisDropDown: {}
-        // })
 
         //  delete post
         axios({
@@ -79,11 +74,6 @@ export default function PostHeader(props) {
                               [post.id]:!state.ellipsisDropDown[post.id]  
             }
         })
-        // or this way ?
-        // dispatch({
-        //     type:'toggleEllipsisDropDown',
-        //     ellipsisDropDown: {}
-        // })
 
         // show modify form for target post id
         dispatch({
@@ -107,27 +97,6 @@ export default function PostHeader(props) {
 
   return (
     <div className='post__header'>
-        {/* à faire show only if there is like to this post */}
-        {false && 
-        <div className='user'>
-            <ul className="user__avatarList">
-                {/* iterate datas to generate the users who like the post */}
-                <li key ={"userid"} className='user__avatarList__item'>
-                    <img className='avatarImg' src={'./avatar_default.jpg'} alt="" />
-                </li>
-                <li>
-                    <img className='avatarImg' src={'./avatar_default.jpg'} alt="" />
-                </li>
-            </ul>
-            <ul className="user__nameList">
-                {/* iterate datas to generate the users who like the post */}
-                <li key ={"userid1"} className='user__nameList__item'>{'name1'}</li>
-                <li key ={"userid2"} >{'name2'}</li>
-            </ul>
-            <span>like this</span>
-        </div>
-        }
-        
         <div className="ellipsis">
             {/* show if login user isAdmin and if post belongs to user */}
             {/* click on button to toggle the bloolean of clicked post id */}

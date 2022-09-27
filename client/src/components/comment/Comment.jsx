@@ -1,11 +1,7 @@
-import React from 'react';
-import Moment from 'react-moment';
-// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-// import { faHeart} from '@fortawesome/free-solid-svg-icons';
-import './comment.scss'
-import { useContext } from 'react';
+import React , { useContext }from 'react';
 import { GlobleContext } from '../..';
-
+import Moment from 'react-moment';
+import './comment.scss'
 
 export default function Comment(props) {
     const {state, dispatch} = useContext(GlobleContext)
@@ -39,51 +35,29 @@ export default function Comment(props) {
                 </div>
                 <Moment fromNow>{comment.create_time}</Moment>
             </div>
-
             <div className="content__text">
                 <div className="text">
-                {state.isReadMore[comment.id] ?
-                <p className='text__content'>
-                    {comment.content}
-                    <button className='reduce-btn' onClick = {toggleReadMore}> Réduire </button>
-                </p>
-                :
-                <p className='text__content'>
-                    { comment.content.slice(0, 100) }
-                    {comment.content.length > 100 && 
-                    <button className='showmore-btn' onClick = {toggleReadMore}>...Voir plus</button>
+                    {state.isReadMore[comment.id] ?
+                    <p className='text__content'>
+                        {comment.content}
+                        <button className='reduce-btn' onClick = {toggleReadMore}> Réduire </button>
+                    </p>
+                    :
+                    <p className='text__content'>
+                        { comment.content.slice(0, 100) }
+                        {comment.content.length > 100 && 
+                        <button className='showmore-btn' onClick = {toggleReadMore}>...Voir plus</button>
+                        }
+                    </p>               
                     }
-                </p>               
-                }
                 </div>
+
                 {comment.img_url !== null &&
                 <div className="img-preview ">
                     <img src={comment.img_url} alt="share" />
                 </div>                                    
                 }
             </div>
-
-            {/* <div className="comment-reactions">
-                <div className="likeWrap">
-                    <button>like</button>
-                    {true &&
-                    <div className="likeNbr">
-                        <FontAwesomeIcon icon={faHeart}/>
-                        <span>2</span>
-                    </div>                                                    
-                    }
-                </div>
-
-                <div className="replyWrap">
-                    <button>reply</button>
-                    {true &&
-                    <div className="replyNbr">
-                        <span>4</span> 
-                        <span>replies</span>
-                    </div>                                                    
-                    }
-                </div>
-            </div> */}
         </div>
     </article>
   )

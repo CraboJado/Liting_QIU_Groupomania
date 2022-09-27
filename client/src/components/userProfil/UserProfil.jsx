@@ -13,7 +13,6 @@ export default function UserProfil() {
         </Link>
         <div className="info">
             <span className="info__name">{user.name}</span>
-            {/* <span className="position">{'position'}</span> */}
         </div>
     </section>
   )

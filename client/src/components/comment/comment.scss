@@ -82,44 +82,5 @@
                 }
             }
         }
-
-
-        .comment-reactions {
-            display: flex;
-            justify-content: space-around;
-
-            .likeWrap,
-            .replyWrap {
-                display: flex;
-                gap: 10px;
-                padding: 5px 10px;
-                font-size: 12px;
-                align-items: center;
-                
-            }
-
-            .replyWrap :hover,
-            .likeWrap button:hover {
-                color:rgb(0, 179, 255);
-                cursor: pointer;
-            }
-
-            .likeWrap button,
-            .replyWrap button {
-                border:none;
-                padding:2px 10px;
-                border-radius: 5px;
-                cursor: pointer;
-            }
- 
-            .likeNbr,
-            .replyNbr {
-                display: flex;
-                gap: 5px;
-                align-items: center;
-            }
-
-        }
-
     }
 }
