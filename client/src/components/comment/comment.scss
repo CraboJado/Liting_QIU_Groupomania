@@ -1,0 +1,125 @@
+@use '../../style/var';
+
+.comment{
+    display: flex;
+    gap: 10px;
+    padding-left: 20px;
+
+    .actor__avatar{
+        width: 30px;
+        height:30px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    &__content {
+        flex:1;
+        font-size: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        padding-bottom: 5px;
+        background-color: rgb(240 240 240);
+        border-radius: 10px;
+
+        .content__header {
+            display: flex;
+            justify-content: space-between;
+            padding:0 10px;
+
+            .author__name {
+                display: flex;
+                gap:10px;
+
+                span:first-child {
+                    font-style: italic;
+                    font-weight: 600;
+                    font-size: 14px;
+                }
+                
+            }
+
+            .author__position {
+                font-size: 12px;
+                color: grey;
+            }
+        }
+
+        .content__text {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            padding-bottom: 20px;
+
+            .text {
+                border:1px solid rgb(240, 240, 240);
+                padding:0 10px;    
+                font-size: 14px;
+
+                &__content {
+                    // min-height: 40px;
+                    word-break: break-word
+                }
+
+                .reduce-btn {
+                    border: none;
+                    cursor: pointer;
+                    color: rgb(0, 179, 255);
+                }
+
+                .showmore-btn{
+                    @extend .reduce-btn
+                }
+
+            }
+
+            .img-preview {
+                display: flex; 
+
+                img {
+                    width: 100%;
+                    object-fit: cover;
+                }
+            }
+        }
+
+
+        .comment-reactions {
+            display: flex;
+            justify-content: space-around;
+
+            .likeWrap,
+            .replyWrap {
+                display: flex;
+                gap: 10px;
+                padding: 5px 10px;
+                font-size: 12px;
+                align-items: center;
+                
+            }
+
+            .replyWrap :hover,
+            .likeWrap button:hover {
+                color:rgb(0, 179, 255);
+                cursor: pointer;
+            }
+
+            .likeWrap button,
+            .replyWrap button {
+                border:none;
+                padding:2px 10px;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+ 
+            .likeNbr,
+            .replyNbr {
+                display: flex;
+                gap: 5px;
+                align-items: center;
+            }
+
+        }
+
+    }
+}
