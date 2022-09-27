@@ -1,0 +1,100 @@
+@use '../../style/var';
+
+.comment-box{
+    display: flex;
+    font-size: 12px;
+    gap: 10px;
+    width: 100%;
+    border-bottom: 1px solid var.$borderColor;
+    padding-bottom: 10px;
+
+    &__avatar{
+        align-self: flex-start;
+
+        .avatarImg {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+    }
+
+    &__form {
+        flex:1;
+        max-width: calc(100% - 50px);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+
+        .editor{
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+
+            .text {
+                outline: none;
+                border: 2px solid var.$borderColor;
+                border-radius: 25px;
+                padding: 10px;
+            }
+
+            .upload {
+                display: flex;
+                gap: 10px;
+                align-items: center;
+                cursor: pointer;
+                font-size: 14px;
+                color:rgb(0, 179, 255);
+
+                .fa-image {
+                    font-size: 26px;
+                }
+
+                &__input {
+                    display: none;                        
+                }
+            }
+        }
+
+        .img-preview{
+            display: flex;
+
+            &-wrap {
+                width: 50%;
+                height: 100px;
+                display: flex;
+                position: relative;
+                border: 2px solid rgb(227, 220, 220);
+                border-radius: 12px;
+    
+                .img {
+                    width: 100%;
+                    object-fit: contain;
+                }
+    
+                .close-btn {
+                    position: absolute;
+                    right: 0px;
+                    border: none;
+                    outline: none;
+                    font-size: 12px;
+                    cursor: pointer;
+                    padding:3px 4px;
+                    border-radius: 0 7px 0 0;
+                    background-color:rgb(227, 220, 220) ;
+                }
+            }
+        }
+
+        .submit-btn {
+            background-color: rgb(0, 179, 255);
+            outline: none;
+            border:none;
+            padding: 2px 5px;
+            border-radius: 5px;
+            color:white;
+            cursor: pointer;
+            text-align: center;           
+        }
+    }
+}
