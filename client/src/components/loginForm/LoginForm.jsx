@@ -72,8 +72,8 @@ export default function LoginForm() {
         state,
         dispatch
     }}>
-        <div className='loginFormWrap form-wrap'>
-            <form className='form'>
+        <div className='loginFormWrap login-form-wrap'>
+            <form className='login-form'>
                 <div className="inputWrap form__input">
                     <div className="email">
                         <Input type = {'email'} name = {'email'}  text = {'Email'} pattern ="^[-\w_]+@{1}[-\w]{2,}[.]{1}[a-z]{2,5}$" />

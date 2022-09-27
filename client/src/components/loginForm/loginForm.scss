@@ -1,12 +1,12 @@
 @use '../../style/_var.scss';
 
 // .loginFormWrap,
-.form-wrap {
+.login-form-wrap {
     height: calc(100vh - 108px);
     position: relative;
 
     // form,
-    .form {
+    .login-form {
         display: flex;
         flex-direction: column;
         gap: 30px;
