@@ -1,13 +1,12 @@
-import React from 'react';
+import React, { useContext }  from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faImage } from '@fortawesome/free-solid-svg-icons';
 import './commentBox.scss'
-import { useContext } from 'react';
 import { GlobleContext } from '../..';
 import axios from 'axios';
 
 export default function CommentBox(props) {
-    const {state,dispatch} = useContext(GlobleContext);
+    const { state, dispatch } = useContext(GlobleContext);
     const user = JSON.parse(localStorage.getItem('user'));
     const { post } = props;
 
@@ -37,14 +36,12 @@ export default function CommentBox(props) {
                                          file:file,
                             }
                 }
-
             })
         };
 
         if(e.target.files[0]){
             reader.readAsDataURL(file);
         }
-        // reader.readAsDataURL(file);
     }
 
     const closeShowFile = () => {
@@ -83,7 +80,7 @@ export default function CommentBox(props) {
 
         axios({
             method: 'post',
-            url: 'http://localhost:5000/api/comments',     
+            url: `${process.env.REACT_APP_API_URL}/comments`,         
             headers: {
                     'Authorization' : `Bearer ${user.token}`,
                     'content-type': contentType
@@ -94,7 +91,7 @@ export default function CommentBox(props) {
             // get new comments list
             return axios({
                         method:'get',
-                        url:'http://localhost:5000/api/comments',
+                        url: `${process.env.REACT_APP_API_URL}/comments`,     
                         headers: {
                             'Authorization' : `Bearer ${user.token}`,
                             'content-type': 'application/json'
@@ -126,7 +123,6 @@ export default function CommentBox(props) {
                                 }
                 }
             })
-
           })
           .catch( err => {
             console.log(err)

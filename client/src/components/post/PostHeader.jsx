@@ -34,7 +34,7 @@ export default function PostHeader(props) {
         //  delete post
         axios({
             method: 'delete',
-            url: `http://localhost:5000/api/posts/${post.id}`,         
+            url: `${process.env.REACT_APP_API_URL}/posts/${post.id}`,               
             headers: {
                     'Authorization' : `Bearer ${user.token}`,
                     'content-type': 'application/json'
@@ -43,8 +43,8 @@ export default function PostHeader(props) {
           .then( () => {
             // after delete post, get new post list to render on page
             return  axios({
-                method: 'get',
-                url: 'http://localhost:5000/api/posts',         
+                method: 'get',  
+                url:`${process.env.REACT_APP_API_URL}/posts`,     
                 headers: {
                         'Authorization' : `Bearer ${user.token}`,
                         'content-type': 'application/json'

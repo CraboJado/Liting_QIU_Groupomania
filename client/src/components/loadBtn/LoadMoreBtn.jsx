@@ -28,7 +28,7 @@ export default function LoadMoreBtn(props) {
       // fetch comments of the target post id
       axios({
         method:'get',
-        url:'http://localhost:5000/api/comments',
+        url:`${process.env.REACT_APP_API_URL}/comments`,
         headers: {
               'Authorization' : `Bearer ${user.token}`,
               'content-type': 'application/json'

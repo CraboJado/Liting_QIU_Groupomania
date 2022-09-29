@@ -52,7 +52,6 @@ export default function FeedShareForm (props) {
         if(e.target.files[0]){
             reader.readAsDataURL(file);
         }
-        // reader.readAsDataURL(file);
     }
 
     const closeShowFile = () => {

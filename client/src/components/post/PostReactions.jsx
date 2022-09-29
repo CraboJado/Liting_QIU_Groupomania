@@ -37,7 +37,7 @@ export default function PostReactions(props) {
         // get commment list of post.id for render page
         axios({
             method:'get',
-            url:'http://localhost:5000/api/comments',
+            url:`${process.env.REACT_APP_API_URL}/comments`,
             headers: {
                 'Authorization' : `Bearer ${token}`,
                 'content-type': 'application/json'
@@ -60,7 +60,7 @@ export default function PostReactions(props) {
     const likePost = () => {
        axios({
             method:'post',
-            url:`http://localhost:5000/api/posts/${post.id}/like`,
+            url:`${process.env.REACT_APP_API_URL}/posts/${post.id}/like`,
             headers: {
                 'Authorization' : `Bearer ${token}`,
                 'content-type': 'application/json'
@@ -82,7 +82,7 @@ export default function PostReactions(props) {
     const cancleLike = () => {
         axios({
             method:'post',
-            url:`http://localhost:5000/api/posts/${post.id}/like`,
+            url:`${process.env.REACT_APP_API_URL}/posts/${post.id}/like`,
             headers: {
                 'Authorization' : `Bearer ${token}`,
                 'content-type': 'application/json'

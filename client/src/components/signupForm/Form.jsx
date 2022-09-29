@@ -110,7 +110,7 @@ export default function Form() {
 
     axios({
       method: 'post',
-      url: 'http://localhost:5000/api/auth/signup',
+      url:`${process.env.REACT_APP_API_URL}/auth/signup`,
       data: state.user
     })
     .then(() => {
@@ -118,7 +118,7 @@ export default function Form() {
       const { email, password } = state.user
       return axios({
               method:'post',
-              url:'http://localhost:5000/api/auth/login',
+              url:`${process.env.REACT_APP_API_URL}/auth/login`,
               data : {email, password}
             })
     })

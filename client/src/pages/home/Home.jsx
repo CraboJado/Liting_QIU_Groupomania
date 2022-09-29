@@ -142,10 +142,9 @@ export default function Home() {
     const navigate = useNavigate()
 
     useEffect(()=>{
-        console.count('useEffect running')
         axios({
             method: 'get',
-            url: 'http://localhost:5000/api/posts',         
+            url: `${process.env.REACT_APP_API_URL}/posts`,           
             headers: {
                     'Authorization' : `Bearer ${user.token}`,
                     'content-type': 'application/json'
@@ -169,7 +168,7 @@ export default function Home() {
                     console.log('err in axois',err)
                 }
           })
-    },[user.token,state.count])
+    },[user.token,state.count,navigate])
 
 
 

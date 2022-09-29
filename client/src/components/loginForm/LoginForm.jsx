@@ -51,7 +51,7 @@ export default function LoginForm() {
 
     axios({
         method:'post',
-        url:'http://localhost:5000/api/auth/login',
+        url:`${process.env.REACT_APP_API_URL}/auth/login`,
         data : {email, password}
     })
     .then( res => {

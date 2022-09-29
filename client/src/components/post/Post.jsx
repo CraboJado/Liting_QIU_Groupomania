@@ -18,11 +18,9 @@ export default function Post(props) {
 
   // get user list who liked post.id
   useEffect(()=>{
-    console.count('useEffect LIKE')
     axios({
         method:'get',
-        url:`http://localhost:5000/api/posts/${post.id}/like`,
-        // url:`http://localhost:5000/api/posts/like`,
+        url:`${process.env.REACT_APP_API_URL}/posts/${post.id}/like`,
         headers: {
             'Authorization' : `Bearer ${user.token}`,
             'content-type': 'application/json'
@@ -44,7 +42,7 @@ export default function Post(props) {
   useEffect(() => {
       axios({
         method:'get',
-        url:'http://localhost:5000/api/comments',
+        url:`${process.env.REACT_APP_API_URL}/comments`,
         headers: {
             'Authorization' : `Bearer ${user.token}`,
             'content-type': 'application/json'

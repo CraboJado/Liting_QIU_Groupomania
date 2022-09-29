@@ -12,8 +12,8 @@ export default function Select(props) {
     const {dispatch} = useContext(GlobleContext);
    
     const url = name === 'department' ? 
-    'http://localhost:5000/api/dpt/' : 
-    'http://localhost:5000/api/position/'
+    `${process.env.REACT_APP_API_URL}/dpt/` : 
+    `${process.env.REACT_APP_API_URL}/position/`
 
     useEffect(()=> {
       axios.get(url)

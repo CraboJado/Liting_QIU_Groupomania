@@ -10,12 +10,14 @@ export default function FeedShareFormSubmit( props ) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+
         if(!state.postDatas.title && !state.postDatas.content) {
             alert('veillez remplir')
            return
         }
 
         let contentType , data;
+
         const postObj = {
             title:state.postDatas.title,
             content: state.postDatas.content,
@@ -38,10 +40,10 @@ export default function FeedShareFormSubmit( props ) {
 
         if(props.method === 'post') {
             method = 'post';
-            url = 'http://localhost:5000/api/posts';
+            url = `${process.env.REACT_APP_API_URL}/posts`
         }else {
             method = 'PUT';
-            url = `http://localhost:5000/api/posts/${props.post.id}`;      
+            url = `${process.env.REACT_APP_API_URL}/posts/${props.post.id}`;      
         }
 
         // send data to API 
@@ -71,7 +73,7 @@ export default function FeedShareFormSubmit( props ) {
             // re-actualiser post list
             return  axios({
                         method: 'get',
-                        url: 'http://localhost:5000/api/posts',         
+                        url: `${process.env.REACT_APP_API_URL}/posts`,         
                         headers: {
                                 'Authorization' : `Bearer ${user.token}`,
                                 'content-type': 'application/json'
