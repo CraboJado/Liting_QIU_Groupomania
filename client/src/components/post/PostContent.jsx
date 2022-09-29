@@ -20,7 +20,7 @@ export default function PostContent(props) {
     }
 
   return (
-    <div className="post__content">
+    <section className="post__content">
         <div className="content-header">
             <div className="author">
                 <div className="author__avatar">
@@ -60,6 +60,6 @@ export default function PostContent(props) {
             }
 
         </div>
-    </div>
+    </section>
   )
 }

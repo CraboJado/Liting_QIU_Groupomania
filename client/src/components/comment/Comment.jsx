@@ -19,10 +19,10 @@ export default function Comment(props) {
     
   return (
     <article className="comment">
-        <div className="comment__actor">
+        <section className="comment__actor">
             <img className="actor__avatar" src={'./avatar_default.jpg'} alt="avatar" />
-        </div>
-        <div className="comment__content">
+        </section>
+        <section className="comment__content">
             <div className="content__header">
                 <div className="author">
                     <div className="author__name">
@@ -58,7 +58,7 @@ export default function Comment(props) {
                 </div>                                    
                 }
             </div>
-        </div>
+        </section>
     </article>
   )
 }

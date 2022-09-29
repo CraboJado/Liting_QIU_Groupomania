@@ -134,7 +134,7 @@ export default function CommentBox(props) {
     }
 
   return (
-    <div className="comment-box ">
+    <section className="comment-box ">
         <div className="comment-box__avatar">
             <img className="avatarImg"src={'./avatar_default.jpg'} alt="" />
         </div>
@@ -147,6 +147,7 @@ export default function CommentBox(props) {
                     <label htmlFor= {post.id} className="upload">
                         <span>ajouter un photo</span>
                         <FontAwesomeIcon icon={faImage} /> 
+                        {/* post-${post.id}*/}
                         <input id= {post.id} className="upload__input" type="file" accept="image/*" onChange={getFileUrl}></input>
                     </label>
                 </div>
@@ -165,6 +166,6 @@ export default function CommentBox(props) {
                 <button className='submit-btn' onClick = {handleSubmit}>Publier</button>
             </div>  
         </form>
-    </div>
+    </section>
   )
 }

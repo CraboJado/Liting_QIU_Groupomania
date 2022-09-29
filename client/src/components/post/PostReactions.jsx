@@ -101,7 +101,7 @@ export default function PostReactions(props) {
 
     }
   return (
-    <div className='post__reactions'>
+    <section className='post__reactions'>
         <div className='total'>
             <div className='total__like'>
                 <span>{state.like[post.id] ? state.like[post.id].length : 0}</span>
@@ -129,6 +129,6 @@ export default function PostReactions(props) {
                 <span>commenter</span>
             </button>
         </div>
-    </div>  
+    </section>  
   )
 }

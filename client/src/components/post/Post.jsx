@@ -72,13 +72,13 @@ export default function Post(props) {
         }
 
         { state.showFeedModifyForms[post.id] &&
-        <div className="overlay">
+        <section className="overlay">
           <FeedShareForm post = {{...post}}>
               <FeedShareFormHeader userDatas = {{...post}}>
                 <h1>modifier votre pubilication</h1>
               </FeedShareFormHeader>    
           </FeedShareForm>
-        </div>   
+        </section>   
         }
 
     </article>)

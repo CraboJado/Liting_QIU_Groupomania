@@ -96,12 +96,12 @@ export default function PostHeader(props) {
     }
 
   return (
-    <div className='post__header'>
+    <section className='post__header'>
         <div className="ellipsis">
             {/* show if login user isAdmin and if post belongs to user */}
             {/* click on button to toggle the bloolean of clicked post id */}
             {(user.isAdmin || post.user_id === user.userId) &&
-            <button className='ellipsis__icon' onClick={ toggleEllipsisDropDown }>
+            <button className='ellipsis__icon' onClick={ toggleEllipsisDropDown } aria-label="ellipsis menu">
                 <FontAwesomeIcon icon={faEllipsis} />
             </button>                                
             }
@@ -114,6 +114,6 @@ export default function PostHeader(props) {
             </div>                               
             }
         </div>
-    </div>
+    </section>
   )
 }
