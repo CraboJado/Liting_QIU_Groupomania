@@ -32,16 +32,15 @@
                 gap:10px;
 
                 span:first-child {
-                    font-style: italic;
                     font-weight: 600;
                     font-size: 14px;
                 }
-                
             }
 
             .author__position {
                 font-size: 12px;
-                color: grey;
+                color: var.$tertiaire;
+                font-style: italic;
             }
         }
 
@@ -57,14 +56,13 @@
                 font-size: 14px;
 
                 &__content {
-                    // min-height: 40px;
                     word-break: break-word
                 }
 
                 .reduce-btn {
                     border: none;
                     cursor: pointer;
-                    color: rgb(0, 179, 255);
+                    color: var.$tertiaire;
                 }
 
                 .showmore-btn{

@@ -18,35 +18,6 @@
         padding:6px 0;
         position: relative;
         
-        // à supprimer
-        .user {
-            flex:8;
-            display: flex;
-            gap: 5px;
-            align-items: center;
-
-            .user__avatarList {
-                display: flex;
-                align-items: center;
-                
-                &__item {
-                    margin-right: -12px;  
-                    .avatarImg {
-                        width: 28px;
-                        height: 28px;
-                        border-radius: 50%;
-                        object-fit: cover;
-                    }
-                }
-            }
-
-            .user__nameList {
-                padding-left: 10px;
-                display: flex;
-                gap: 3px;
-            }
-        }
-
         .ellipsis {
             display: flex;
             justify-content: flex-end;
@@ -88,6 +59,8 @@
                     border-radius: 5px;
                     padding: 2px 4px;
                     cursor: pointer;
+                    color:var.$secondaire;
+                    background-color: var.$tertiaire;
                 }
             }
         }
@@ -132,7 +105,9 @@
                     }
     
                     .position {
-                        color:grey                   
+                        color:var.$tertiaire;    
+                        font-weight: 400;
+                        font-style: italic;              
                     }
                 }
             }
@@ -167,6 +142,7 @@
                         background-color: white;
                         cursor: pointer;
                         color: rgb(0, 179, 255); 
+                        color: var.$tertiaire; 
                         font-style: italic;                       
                     }
                 }
@@ -176,7 +152,6 @@
                 border-bottom: 1px solid var.$borderColor;
                 padding-bottom: 10px;
                 display: flex;
-                // height: 300px;
 
                 img,
                 .img {
@@ -208,7 +183,8 @@
                 cursor: pointer;
 
                 &:hover {
-                    color:rgb(0, 179, 255)
+                    color:rgb(0, 179, 255);
+                    color:var.$primaire;
                 }
             }
 
@@ -233,15 +209,14 @@
                 border: none;
                 padding: 3px 10px;
                 border-radius: 10px;
+                background-color: var.$tertiaire;
+                color:white;
 
-                &:hover {
-                    color:rgb(0, 179, 255)
-                }
             }
 
             &__like--highlight {
                 @extend .reaction-btn__like;
-                color:#34DDE2;
+                color:var.$secondaire;
             }
 
             &__comment {

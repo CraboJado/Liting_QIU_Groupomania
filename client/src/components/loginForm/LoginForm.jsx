@@ -72,9 +72,9 @@ export default function LoginForm() {
         state,
         dispatch
     }}>
-        <div className='loginFormWrap login-form-wrap'>
+        <div className='login-form-wrap'>
             <form className='login-form'>
-                <div className="inputWrap form__input">
+                <div className="login-form__input">
                     <div className="email">
                         <Input type = {'email'} name = {'email'}  text = {'Email'} pattern ="^[-\w_]+@{1}[-\w]{2,}[.]{1}[a-z]{2,5}$" />
                         {state.status === 404 && <ErrMsg/>}
@@ -84,7 +84,7 @@ export default function LoginForm() {
                         {state.status === 401 && <ErrMsg/>}
                     </div>
                 </div>
-                <button className='btn form__submit-btn'  onClick={handleSubmit}> S'identifier </button>
+                <button className='login-form__submit-btn'  onClick={handleSubmit}> S'identifier </button>
             </form>
         </div>
 

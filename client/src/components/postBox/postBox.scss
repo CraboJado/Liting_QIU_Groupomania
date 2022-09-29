@@ -25,7 +25,7 @@
         
         &__editor {
             padding: 10px;
-            border:1px solid var.$bcgColor;
+            border:2px solid var.$secondaire;
             flex:1;
             border-radius: 20px;
             color:var.$tertiaire;
@@ -48,10 +48,12 @@
             align-items: center;
             padding: 4px 5px;
             color:rgb(0, 179, 255);
+            color:var.$secondaire;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             border: 1px solid var.$borderColor;
+            background-color: var.$tertiaire;
 
             &:hover{
                 box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.2);

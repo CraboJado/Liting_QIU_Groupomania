@@ -10,7 +10,7 @@ export default function PswErrMsg() {
 
   return (
         <div className='password-error'>
-            <h3 className='password-error__title'>Le mot de passe doit contenir les éléments suivants :</h3>
+            <h2 className='password-error__title'>Le mot de passe doit contenir les éléments suivants :</h2>
             
             <div className='password-error__msg'>
                 { !isLowCase ? 

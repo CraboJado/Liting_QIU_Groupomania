@@ -51,16 +51,15 @@
 
             // LoginForm ErrMsg comopent
             .error-msg {
-                background-color: #f1f1f1;
                 font-size: 12px;
-                color: red;
+                color: #9E0000;
                 border-radius: 5px;
                 padding:2px 4px;
             }
         }
 
         &__submit-btn {
-            background-color: #4E5166;
+            background-color:var.$tertiaire;
             color: white;
             padding: 8px 10px;
             border-radius: 5px;
