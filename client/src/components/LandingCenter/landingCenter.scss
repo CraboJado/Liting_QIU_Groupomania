@@ -1,4 +1,6 @@
 @use '../../style/var.scss';
+@use '../../style/responsive.scss';
+
 
 .landingCenter {
     display: flex;
@@ -27,4 +29,36 @@
             box-shadow: 0px 0px 8px 0px rgba(0,0,0,0.73);
         }
     }
+}
+
+@include responsive.mediaQuery(768px) {
+
+    .landingCenter h2 {
+        font-size: 20px;
+    }
+
+
+    .landingCenter img {
+        width: 90%;
+    }
+
+    .landingCenter .btn {
+        font-size: 16px;
+    }
+}
+
+@include responsive.mediaQuery(992px) {
+    .landingCenter h2 {
+        font-size: 22px;
+    }
+
+    .landingCenter img {
+        width: 70%;
+    }
+
+    .landingCenter .btn {
+        font-size: 18px;
+    }
+
+
 }

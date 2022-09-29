@@ -15,7 +15,7 @@ export default function HeaderNav(props) {
         {isShow ? 
         <FontAwesomeIcon icon={faXmark} onClick = {clickHandler}/>
         :
-        <FontAwesomeIcon icon={faBars} onClick = {clickHandler}/> 
+        <FontAwesomeIcon icon={faBars} onClick = {clickHandler} className = "header__menu-icon"/> 
         }
           
         {isShow && 
@@ -25,10 +25,10 @@ export default function HeaderNav(props) {
         </div>
         }
 
-        {/* <div className='dropDown header__dropDown'>
+        <div className='header__dropDown--MS'>
             <Link to = '/signup' className='header__button--dark'>S'inscrire</Link>
             <Link to = '/login'  className='header__button--dark' >S'identifier</Link>
-        </div> */}
+        </div>
     </nav>
   )
 }

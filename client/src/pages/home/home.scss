@@ -1,5 +1,7 @@
 @use '../../style/var';
 
+@use '../../style/responsive.scss';
+
 .home {
     display: flex;
     flex-direction: column;
@@ -102,8 +104,20 @@
         background-color: rgba(0,0,0,0.5); /* Black background with opacity */
         z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
       }
+}
 
+@include responsive.mediaQuery(768px) {
+    .home .main {
+        width: 80%;
+        margin: auto;
+    }
+}
 
+@include responsive.mediaQuery(992px) {
+    .home .main {
+        width: 70%;
+        margin: auto;
+    }
 }
 
 

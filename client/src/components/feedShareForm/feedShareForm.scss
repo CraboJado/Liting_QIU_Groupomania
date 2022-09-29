@@ -1,5 +1,7 @@
 @use '../../style/var';
 
+@use '../../style/responsive.scss';
+
 .publish-form {
     display: flex;
     flex-direction: column;
@@ -7,7 +9,7 @@
     background-color: white;
     padding:10px 5px 20px 5px;
     border-radius: 8px;
-    width: 90%;
+    width: 80%;
     max-height: 500px;
     overflow: auto;
     
@@ -166,5 +168,17 @@
             }
         }
 
+    }
+}
+
+@include responsive.mediaQuery(768px){
+    .publish-form {
+        width: 60%;
+    }
+}
+
+@include responsive.mediaQuery(992px){
+    .publish-form {
+        width: 50%;
     }
 }
