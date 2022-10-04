@@ -5,14 +5,19 @@ const { getComments, addComment, modifyComment, likeComment, deleteComment } = r
 
 const router = express.Router();
 
+// get comments
 router.get('/', auth, getComments)
 
+// creat comment
 router.post('/',auth, multer,addComment)
 
+// modify the comment of id
 router.put('/:id',auth,multer,modifyComment)
 
+// delete the comment of id
 router.delete('/:id',auth, deleteComment)
 
+// like the comment of id 
 router.post('/:id/like', auth, likeComment)
 
 module.exports = router
