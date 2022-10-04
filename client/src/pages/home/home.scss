@@ -6,8 +6,7 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
-    background-color: rgba(240,240,240);
-    // background-color: var.$secondaire;
+    background-color: var.$secondaire;
 
     // header
     .header {
@@ -108,14 +107,14 @@
 
 @include responsive.mediaQuery(768px) {
     .home .main {
-        width: 80%;
+        width: 70%;
         margin: auto;
     }
 }
 
 @include responsive.mediaQuery(992px) {
     .home .main {
-        width: 70%;
+        width: 50%;
         margin: auto;
     }
 }

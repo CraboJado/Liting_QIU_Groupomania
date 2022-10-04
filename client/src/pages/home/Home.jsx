@@ -1,9 +1,7 @@
 import React ,{useReducer, useEffect} from 'react';
-
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronDown, faPowerOff, faChevronUp } from '@fortawesome/free-solid-svg-icons';
 import { Link , useNavigate } from "react-router-dom";
-// import { useNavigate } from "react-router-dom";
 import Header from '../../components/header/Header';
 import Footer from '../../components/footer/Footer'
 import UserProfil from '../../components/userProfil/UserProfil';
@@ -132,7 +130,6 @@ const reducer = (prevState, action) => {
     }
 }
 
-
 export default function Home() {
 
     const [state, dispatch] = useReducer(reducer, initialState);
@@ -238,7 +235,6 @@ export default function Home() {
             }           
 
         </div>
-
     </GlobleContext.Provider>
 
   )
