@@ -9,7 +9,7 @@ exports.getComments =(req, res, next)=> {
                 FROM comments c JOIN users 
                 ON c.user_id = users.id
                 JOIN positions
-                ON users.job_id = positions.id
+                ON users.position_id = positions.id
                 WHERE c.target_id = ? AND c.delete_time IS ?
                 ORDER BY c.create_time DESC 
                 LIMIT ? OFFSET 0

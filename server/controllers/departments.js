@@ -2,7 +2,7 @@ const mysqlConnect = require('../config/db');
 
 exports.getDpts = (req, res, next) => {
     mysqlConnect.then( connection => {
-        const dpt_query = 'SELECT id, name FROM departments ';
+        const dpt_query = 'SELECT id, department FROM departments ';
         connection.query(dpt_query, (error, results,fields) => {
             if(error) return next(error);
 

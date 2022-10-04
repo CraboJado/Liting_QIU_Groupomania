@@ -180,7 +180,7 @@ exports.getPosts = (req, res, next) => {
                         FROM posts p JOIN users 
                         ON p.user_id = users.id
                         JOIN positions 
-                        ON users.job_id = positions.id
+                        ON users.position_id = positions.id
                         WHERE p.delete_time IS ? 
                         ORDER BY p.create_time DESC 
                         LIMIT ? OFFSET 0
