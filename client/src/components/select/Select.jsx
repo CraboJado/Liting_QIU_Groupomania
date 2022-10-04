@@ -39,7 +39,7 @@ export default function Select(props) {
 
       <select name= {name} id= {`${name}-select`} onChange={handleChange}>
           <option value="">--Veuillez choisir une option--</option>
-          {list.map( ele => <option key= {ele.id} value= {ele.id}> {ele.name || ele.position}</option> )}
+          {list.map( ele => <option key= {ele.id} value= {ele.id}> {ele.department || ele.position}</option> )}
       </select>
   </div>
   )
