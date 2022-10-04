@@ -148,15 +148,15 @@
                 }
             }
 
-            .imgWrap {
+            .img {
                 border-bottom: 1px solid var.$borderColor;
                 padding-bottom: 10px;
                 display: flex;
+                height: 300px;
 
-                img,
-                .img {
+                img {
                     width: 100%;
-                    object-fit: cover;
+                    object-fit: contain;
                 }
             }
         }

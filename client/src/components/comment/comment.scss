@@ -73,10 +73,11 @@
 
             .img-preview {
                 display: flex; 
-
+                height: 300px;
+ 
                 img {
                     width: 100%;
-                    object-fit: cover;
+                    object-fit: contain;
                 }
             }
         }
