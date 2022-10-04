@@ -54,8 +54,8 @@ export default function PostContent(props) {
             </div>          
             {/* check fetch data if img is null, show if it is not null et get url */}
             {post.img_url !== null &&
-            <div className="imgWrap">
-                <img className="img" src={post.img_url} alt="share" />
+            <div className="img">
+                <img src={post.img_url} alt={`post ${post.id}`} />
             </div>                                    
             }
 

@@ -54,7 +54,7 @@ export default function Comment(props) {
 
                 {comment.img_url !== null &&
                 <div className="img-preview ">
-                    <img src={comment.img_url} alt="share" />
+                    <img src={comment.img_url} alt= {`comment${comment.id}`} />
                 </div>                                    
                 }
             </div>

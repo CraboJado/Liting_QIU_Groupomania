@@ -9,7 +9,7 @@ export default function LandingCenter() {
             Bienvenue à votre communauté<br/>
             S'exprimez, Partagez , Rigolez ensemble
         </h2>
-        <img src="./logos/icon-left-font-monochrome-black.svg" alt="" />
+        <img src="./logos/icon-left-font-monochrome-black.svg" alt="banner" />
         <Link to = '/signup' className='btn'>Rejoignez vos collègues</Link>
     </main>
   )
