@@ -19,6 +19,10 @@
     transform: translate(-50%,-50%);
     -ms-transform: translate(-50%,-50%);
 
+    &::-webkit-scrollbar {
+        display: none;
+      }
+
     &__header {
         display: flex;
         flex-direction: column;
