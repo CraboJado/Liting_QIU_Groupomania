@@ -2,6 +2,7 @@ import React , { useContext }from 'react';
 import { GlobleContext } from '../..';
 import Moment from 'react-moment';
 import './comment.scss'
+import 'moment/locale/fr';
 
 export default function Comment(props) {
     const {state, dispatch} = useContext(GlobleContext)
@@ -33,7 +34,7 @@ export default function Comment(props) {
                         {comment.position}
                     </div>
                 </div>
-                <Moment fromNow>{comment.create_time}</Moment>
+                <Moment fromNow locale = 'fr'>{comment.create_time}</Moment>
             </div>
             <div className="content__text">
                 <div className="text">

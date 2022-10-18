@@ -2,6 +2,7 @@ import React from 'react';
 import Moment from 'react-moment';
 import { useContext } from 'react';
 import { GlobleContext } from '../..';
+import 'moment/locale/fr';
 
 
 
@@ -31,7 +32,7 @@ export default function PostContent(props) {
                     <span className="position">{post.position}</span>
                 </div>
             </div>
-            <Moment fromNow className='pulished-time'>{post.create_time}</Moment>
+            <Moment fromNow className='pulished-time' locale = 'fr'>{post.create_time}</Moment>
         </div>
 
         <div className="content-area">
