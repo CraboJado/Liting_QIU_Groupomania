@@ -21,8 +21,11 @@ export default function FeedPosts() {
                 })}
 
             </ul>
-
-            <LoadMoreBtn>posts</LoadMoreBtn>
+            
+            {state.posts.length > 10 && 
+              <LoadMoreBtn>posts</LoadMoreBtn>
+            }
+            
     </section>
   )
 }

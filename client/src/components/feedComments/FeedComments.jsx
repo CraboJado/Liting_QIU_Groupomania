@@ -30,7 +30,10 @@ export default function FeedComments(props) {
 
         </ul>
         
-        <LoadMoreBtn post = {{...post}}>comments</LoadMoreBtn>
+        {state.totalComments[post.id] > 2 && 
+          <LoadMoreBtn post = {{...post}}>comments</LoadMoreBtn>        
+        }
+        
     </article>   
   )
 }
