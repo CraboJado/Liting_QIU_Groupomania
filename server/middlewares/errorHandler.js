@@ -13,7 +13,7 @@ const errorHandler = (err, req, res, next) => {
 
     // if error is from JsonWebToken, customize error response
     if(error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
-        error = new ErrorResponse(error.message,400);
+        error = new ErrorResponse(error.message,401);
     }
 
     res.status(error.statusCode || 500).json({ errorMsg: error.message || "Server Error"})
