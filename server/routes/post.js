@@ -1,7 +1,7 @@
 const express = require('express');
 const auth = require('../middlewares/auth');
 const multer = require('../middlewares/multer_config');
-const { addPost, modifyPost, deletePost, getPosts, getOnePost , likePost, getLikedPosts} = require('../controllers/post');
+const { addPost, modifyPost, deletePost, getPosts, getOnePost , likePost, getUsersLikedPost} = require('../controllers/post');
 
 const router = express.Router();
 
@@ -24,6 +24,6 @@ router.delete('/:id',auth, deletePost)
 router.post('/:id/like',auth,likePost)
 
 // get users who like the post of id
-router.get('/:id/like',auth, getLikedPosts)
+router.get('/:id/like',auth, getUsersLikedPost)
 
 module.exports = router;
