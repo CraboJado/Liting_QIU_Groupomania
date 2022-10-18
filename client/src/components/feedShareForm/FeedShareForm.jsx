@@ -67,10 +67,10 @@ export default function FeedShareForm (props) {
 
   return (
     <form className='publish-form'>
-        {/* header  */}
+        {/* form header  */}
         {props.children}
         
-        {/* content */}
+        {/* form content */}
         <div className="publish-form__editor">
             <div className="editor">
                 <div className="editor__title" >

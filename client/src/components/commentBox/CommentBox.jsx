@@ -143,12 +143,11 @@ export default function CommentBox(props) {
                     <label htmlFor= {post.id} className="upload">
                         <span>ajouter un photo</span>
                         <FontAwesomeIcon icon={faImage} /> 
-                        {/* post-${post.id}*/}
                         <input id= {post.id} className="upload__input" type="file" accept="image/*" onChange={getFileUrl}></input>
                     </label>
                 </div>
             </div>
-            {/*  */}
+            
             {(state.commentDatas[post.id] && state.commentDatas[post.id].fileUrl) && 
             <div className="img-preview">
                 <div className="img-preview-wrap">

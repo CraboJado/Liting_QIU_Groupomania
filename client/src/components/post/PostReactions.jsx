@@ -21,14 +21,6 @@ export default function PostReactions(props) {
 
     // show comments
     const handleClick = (e) => {
-        // set showComments state to show FeedComments Component
-        //  les 2 syntax fonctionnent
-        // dispatch({
-        //     type:'toggleShowComments',
-        //     showComments:{ ...state.showComments,
-        //                  [post.id] : !state.showComments[post.id]
-        //     }
-        // })
         dispatch({
             type:'toggleShowComments',
             showComments:{ [post.id] : !state.showComments[post.id] }
@@ -109,7 +101,7 @@ export default function PostReactions(props) {
             </div>
             <div className='total__comment'>
                 <span>{state.totalComments[post.id]}</span>
-                <span onClick={handleClick}>comments</span>
+                <span onClick={handleClick}>commentaires</span>
             </div>
         </div>
         <div className='reaction-btn'>

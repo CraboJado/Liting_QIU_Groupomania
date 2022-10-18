@@ -1,5 +1,4 @@
 import React , { useEffect, useState , useContext} from 'react'
-// import { GlobleContext } from '../form/Form';
 import { GlobleContext } from '../..'
 import axios from 'axios';
 import './select.scss';

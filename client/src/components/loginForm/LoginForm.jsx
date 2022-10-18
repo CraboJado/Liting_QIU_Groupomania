@@ -56,7 +56,6 @@ export default function LoginForm() {
     })
     .then( res => {
         localStorage.setItem('user', JSON.stringify(res.data));       
-        // navigate("/home",{replace:true})
         navigate("/home")
     })
     .catch(err => {
