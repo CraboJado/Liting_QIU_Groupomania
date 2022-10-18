@@ -10,6 +10,7 @@ export default function FeedShareFormHeader(props) {
     const {userDatas} = props;
 
     const closeFeedShareForm = () => {
+        document.body.classList.remove('fixed');
         if(props.method){
         // close FeedShareForm
             dispatch({

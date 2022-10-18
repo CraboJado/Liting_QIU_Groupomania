@@ -67,6 +67,8 @@ export default function PostHeader(props) {
     }
 
     const modifyPost = () => {
+        document.body.classList.add('fixed');
+
         // hide elipseDropDown
         dispatch({
             type:'toggleEllipsisDropDown',

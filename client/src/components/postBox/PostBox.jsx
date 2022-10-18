@@ -11,6 +11,7 @@ export default function PostBox() {
     const user = JSON.parse(localStorage.getItem('user'));
     
     const handleClick = () => {
+        document.body.classList.add('fixed');
         dispatch({
             type:'feedShareForm',
             showFeedShareForm: !state.showFeedShareForm
@@ -38,7 +39,6 @@ export default function PostBox() {
         if(e.target.files[0]){
             reader.readAsDataURL(file);
         }
-        // reader.readAsDataURL(file);
 
         // show form to edit post
         dispatch({
