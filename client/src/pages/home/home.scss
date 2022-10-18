@@ -90,6 +90,7 @@
         flex-direction: column;
         gap: 20px;
         padding: 0px 10px;
+        min-height: calc(100vh - 128px);
     }
 
     .overlay {
