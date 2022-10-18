@@ -5,7 +5,7 @@ const { ErrorResponse, getMysqlDate, uid, deleteFile, deleteHandler } = require(
 exports.addPost = (req, res, next) => {
     // ensure user request format is valid
     if(!req.file && req.body.post ){
-        return next( new ErrorResponse('mauvaise requête555', 400) )
+        return next( new ErrorResponse('mauvaise requête', 400) )
     }
 
     if(req.file && !req.body.post ){
@@ -20,8 +20,6 @@ exports.addPost = (req, res, next) => {
 
     // user publish with file 
     if(req.file) {
-        // const file = req.file.filename remplacer imh_url
-        // const img_url = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
         const img_url = req.file.filename;
         title = JSON.parse(req.body.post).title;
         content = JSON.parse(req.body.post).content;
@@ -274,7 +272,7 @@ exports.likePost = (req, res, next) => {
     })
 }
 
-exports.getLikedPosts = (req, res, next) => {
+exports.getUsersLikedPost = (req, res, next) => {
     mysqlConnect.then( connection => {
         const reactions_query = 'SELECT user_id FROM reactions WHERE reaction = ? AND target_id = ?'
         

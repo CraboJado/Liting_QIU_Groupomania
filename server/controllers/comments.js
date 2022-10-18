@@ -66,7 +66,6 @@ exports.addComment =(req, res, next)=> {
     if(req.file){
         content = JSON.parse(req.body.comment).content;
         targetId = JSON.parse(req.body.comment).targetId
-        // const img_url = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
         const img_url = req.file.filename;
         comments_query = 'INSERT INTO comments (id, user_id, target_id, content, img_url, create_time) VALUES (?, ?, ?, ?, ?, ?)';
         insert_values = [uid(), req.auth.userId, targetId, content, img_url, getMysqlDate() ];
