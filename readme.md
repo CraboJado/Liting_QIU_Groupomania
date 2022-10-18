@@ -11,7 +11,7 @@ run git clone in gitbash or commande line
 2. configuration at Backend:
     1. execute mysql scripts to create necessary tables in advance
     2. create .env file in server folder to configurate the necessary environement variables, please refer to the .env_example file
-    3. create 'public' folder 
+    3. create 'public' folder in server folder
     4. create 'images' folder inside public folder 
     5. run  'npm i or npm install' to install necessary dependencies at server folder
     6. after all dependencies are installed, run 'node server or nodemon server' to start the server
