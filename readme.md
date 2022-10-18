@@ -6,8 +6,7 @@ Backend : node JS, express, mysql2, multer , bcrypt, jsonwebtoken
 ## How to start the projet:
 1. clone project to your local machine <br>
 clone the current version on main branch : https://github.com/CraboJado/Liting_QIU_Groupomania.git
-<br>
-git clone in gitbash or commande line
+run git clone in gitbash or commande line
 
 2. configuration at Backend:
     1. execute mysql scripts to create necessary tables in advance
