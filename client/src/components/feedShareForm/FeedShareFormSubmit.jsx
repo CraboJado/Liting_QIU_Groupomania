@@ -10,12 +10,13 @@ export default function FeedShareFormSubmit( props ) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-
         if(!state.postDatas.title && !state.postDatas.content) {
             alert('veillez remplir')
            return
         }
 
+        document.body.classList.remove('fixed');
+        
         let contentType , data;
 
         const postObj = {
