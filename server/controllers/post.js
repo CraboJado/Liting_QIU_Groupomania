@@ -110,7 +110,11 @@ exports.modifyPost = (req, res, next) => {
                 }
 
                 // if the post has an image before modification,need to delete the old image in the server
-                if(req.body.fileUrl ==="" && post.img_url !== null) {
+                if(req.file && post.img_url !== null) {
+                    deleteFile(post.img_url,next);
+                }
+
+                if(req.body.fileUrl === "" && post.img_url !== null) {
                     deleteFile(post.img_url,next);
                 }
     
