@@ -22,9 +22,7 @@ export default function FeedPosts() {
 
             </ul>
             
-            {state.posts.length > 10 && 
-              <LoadMoreBtn>posts</LoadMoreBtn>
-            }
+            <LoadMoreBtn>posts</LoadMoreBtn>
             
     </section>
   )
