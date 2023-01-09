@@ -1,7 +1,12 @@
-## Brief introduction of the project :
-Groupomania is a corporate social network web application, responsive and respecting WCAG standards, implemented mainly with technology stacks : 
-Frontend : react JS ( version 18.0 ) , react-moment, axios, sass
+## Project 7 - Groupomania :
+implemented individually during training program in Openclassrooms.
+> Build a Full-Stack Solution for a Enterprise Social Network application.
+
+> Groupomania is a corporate social network web application, responsive and respecting WCAG standards, implemented mainly with technology stacks : 
+> Frontend : react JS ( version 18.0 ) , react-moment, axios, sass
 Backend : node JS, express, mysql2, multer , bcrypt, jsonwebtoken
+
+
 
 ## Features
 * Signup / Login.
@@ -13,7 +18,7 @@ Backend : node JS, express, mysql2, multer , bcrypt, jsonwebtoken
 * Logout.
 
 ## How to start the projet:
-1. clone project to your local machine on main branch<br>
+1. clone project to your local machine on main branch
 run git clone in gitbash or commande line
 
 2. configuration at Backend:
@@ -27,9 +32,15 @@ run git clone in gitbash or commande line
 3. configuration at Frontend:
     1. create .env file in client folder and configurate the necessary environement variable as below :
          REACT_APP_API_URL = 'http://localhost:5000/api'
-         <br>
+         
          !! if your port is not 5000, please change to your port 
     2. run  `npm i or npm install` to install necessary dependencies at client folder
     3. after all dependencies are installed, run `npm start` to open the web application
+
+![javascript](https://img.shields.io/badge/Javascript-323330?style=for-the-badge&logo=javascript&logoColor=F7DF1E)
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![NodeJs](https://img.shields.io/badge/NodeJs-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
+![Express.js](https://img.shields.io/badge/Express.js-EEEEEE?style=for-the-badge&logo=express&logoColor=black)
+![MySQL](https://img.shields.io/badge/MySQL-005c83?style=for-the-badge&logo=mysql&logoColor=white)
 
 
