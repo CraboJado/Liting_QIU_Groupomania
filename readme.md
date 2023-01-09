@@ -7,7 +7,6 @@ implemented individually during training program in Openclassrooms.
 Backend : node JS, express, mysql2, multer , bcrypt, jsonwebtoken
 
 
-
 ## Features
 * Signup / Login.
 * Post article with/without image.
