@@ -1,4 +1,4 @@
-## Project 7 - Groupomania :
+## Project 7 - Groupomania ( FullStack ):
 implemented individually during training program in Openclassrooms.
 > Build a Full-Stack Solution for a Enterprise Social Network application.
 
